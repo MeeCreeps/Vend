@@ -26,9 +26,9 @@ public:
      * */
     inline uint32_t Hash(uint32_t key, uint32_t hash_param1, uint32_t hash_param2);
 
-    bool Get(const uint32_t &vertex1, const uint32_t &vertex2) override;
+    bool NEpairTest(const uint32_t &vertex1, const uint32_t &vertex2) override;
 
-    void Set(const uint32_t &vertex1, const uint32_t &vertex2) override;
+    void EdgeSet(const uint32_t &vertex1, const uint32_t &vertex2) override;
 
     void LoadFromDb(Db *encode_db_) override;
 

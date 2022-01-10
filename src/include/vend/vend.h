@@ -24,7 +24,7 @@ public:
     }
 
     ~Vend() {
-        delete encode_;
+        delete[] encode_;
     }
 
     /**
@@ -52,7 +52,7 @@ public:
      *          2:  uncertain edge (select by db next )
      * */
     int Determine(const uint32_t &vertex1, const uint32_t &vertex2) {
-        return encode_->Get(vertex1, vertex2);
+        return encode_->NEpairTest(vertex1, vertex2);
     };
 
 private:

@@ -12,7 +12,7 @@
 #define VEND_ENCODEFACTORY_H
 
 #include "encode/bloom_filter_encode.h"
-#include "encode/dynamic_encode.h"
+#include "encode/hybrid_encode.h"
 enum class EncodeType {
     BloomFilter, DynamicRangeHash
 };

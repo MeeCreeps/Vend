@@ -25,12 +25,6 @@ static constexpr uint32_t BLOOM_FILTER_HASH2_PARAM2 = 2908361;
 static constexpr uint32_t BLOOM_FILTER_HASH3_PARAM1 = 1635148;
 static constexpr uint32_t BLOOM_FILTER_HASH3_PARAM2 = 9191891;
 
-// how many bits one vertex takes
-uint32_t VERTEX_BIT_SIZE = static_cast<uint32_t>(ceil(log2(VERTEX_SIZE)));
-// how many bits range size takes
-uint32_t LOG_K_SIZE = static_cast<uint32_t>(ceil(log(K_SIZE)));
-// max integer number that fully encoding contains
-uint32_t MAX_INTEGER_SIZE = static_cast<uint32_t >(PER_ENCODE_BIT_SIZE -1 / VERTEX_BIT_SIZE);
 
 
 #endif //VEND_CONFIG_H
