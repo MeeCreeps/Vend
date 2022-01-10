@@ -35,7 +35,7 @@ public:
     void EncodePersistent(Db *encode_db_) override;
 
 private:
-    BitSet<B_FILTER_ENCODE_BITS> encode_bitset_;
+    uint32_t encode_[VERTEX_SIZE];
     uint32_t h1_param1 = BLOOM_FILTER_HASH1_PARAM1;
     uint32_t h1_param2 = BLOOM_FILTER_HASH1_PARAM2;
     uint32_t h2_param1 = BLOOM_FILTER_HASH2_PARAM1;

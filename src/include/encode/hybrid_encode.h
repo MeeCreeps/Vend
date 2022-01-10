@@ -140,7 +140,7 @@ public:
     }
 
     /**
-     *
+     *   choose highest score between vertex1 and vertex2
      * */
     void
     RestructChoose(const uint32_t &vertex1, const std::set<uint32_t> &neighbor1, const uint32_t &vertex2,
