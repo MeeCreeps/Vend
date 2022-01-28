@@ -26,9 +26,8 @@ graph storage is  based on a database, so firstly make sure that the environment
    static constexpr int K_SIZE = 5;
    static constexpr uint32_t VERTEX_SIZE = 1791489;       
    static constexpr uint32_t DEGREE = 28;
+      make sure to correct the dataset details before testing 
    ```
-
-   make sure to correct the dataset details before testing 
 
 3. build and run  
 
@@ -88,9 +87,9 @@ build the whole graph, and provides  three operations: query, insertion, and del
 **execution**
 
 	1. score:  return the number of certain ne-pairs under each encoding algorithm when querying.
- 	2. query :  return the query cost time  
- 	3. delete :  return the time taken for encoding deletion 
- 	4. insert :  return the time taken for encoding insertion
+	2. query :  return the query cost time  
+	3. delete :  return the time taken for encoding deletion 
+	4. insert :  return the time taken for encoding insertion
 
 **utils**
 
@@ -120,4 +119,10 @@ We provide 3 datasets in our experiment
 |  As-Skitter  |  Internet topology  |  1,696,415   | 11,095,298  |         13         |
 | Wiki-topcats | Wikipedia hyperlink |  1,791,489   | 25,444,207  |         28         |
 |    Orkut     |   Social network    |  3,072,441   | 117,185,083 |         76         |
+=======
+1. As-Skitter dataset   [link]: http://snap.stanford.edu/data/wiki-topcats.html
+
+2. Wiki-topcats dataset [link]:http://snap.stanford.edu/data/wiki-topcats.html
+
+3.  Orkut dataset       [link]: http://snap.stanford.edu/data/wiki-topcats.html
 
