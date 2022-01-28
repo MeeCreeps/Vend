@@ -11,49 +11,31 @@
 #ifndef VEND_EXECUTION_H
 #define VEND_EXECUTION_H
 
-#include "graph/graph.h"
 #include <string>
-#include <vector>
-#include <unordered_map>
-class Execution{
+#include "graph/graph.h"
+
+
+class Execution {
 
 public:
+    Execution(){}
+    Execution(std::string db_path, std::string vend_prefix, VendType vend_type) : db_path_(db_path), vend_path_(
+            VendFactory::GetVendPath(vend_prefix, vend_type)), vend_type_(vend_type) {}
 
-    Execution(std::string db_path, std::string data_path = nullptr){}
+    virtual void Execute() = 0;
 
-    /**
-     * construct graph and vend
-     * */
-    void Init();
-
-
-    void Query();
-
-    void Insert();
-
-    void Delete();
-
-    void CreateQueryList(std::vector<int> query_size,int repeat_times);
-
-    std::set<uint32_t> LoadQueryList();
-
-    void CreateInsertList(std::vector<int> insert_size,int repeat_times);
-
-    std::unordered_map<uint32_t,uint32_t> LoadInsertList();
-
-    void CreateDeleteList(std::vector<int> insert_size,int repeat_times);
-
-    std::unordered_map<uint32_t,uint32_t> LoadDeleteList();
-
-private:
-    Graph *graph_;
+    ~Execution(){
+        delete graph_;
+        graph_= nullptr;
+    }
+protected:
+    std::string db_path_;
     std::string vend_path_;
-    std::string data_path_;
+    Graph *graph_= nullptr;
+    VendType vend_type_;
+
 
 };
-
-
-
 
 
 #endif //VEND_EXECUTION_H
