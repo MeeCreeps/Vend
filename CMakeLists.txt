@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8.7)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
 project(Vend CXX)
 
-set(VEND_SRC_INCLUDE ${PROJECT_SOURCE_DIR}/src/include ${PROJECT_SOURCE_DIR}/src/* ${PROJECT_SOURCE_DIR}/src/include/thirdpart)
+set(VEND_SRC_INCLUDE ${PROJECT_SOURCE_DIR}/src/include ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/include/thirdpart)
 add_subdirectory(./src/include/thirdpart/googletest)
 set(GTEST
         gtest
@@ -11,14 +12,14 @@ set(GTEST
 # db library
 file(GLOB DB_ENGINE_SRC ${PROJECT_SOURCE_DIR}/src/dbengine/*.cpp ${PROJECT_SOURCE_DIR}/src/include/dbengine/*.h)
 add_library(DB_ENGINE STATIC ${DB_ENGINE_SRC} )
-target_link_libraries(DB_ENGINE librocksdb.a -lpthread -lsnappy -lbz2 -lzstd -ldl libz.so)
+target_link_libraries(DB_ENGINE librocksdb.a -lpthread -lsnappy -lbz2 -lzstd -ldl libz.so -llz4)
 
 include_directories(${VEND_SRC_INCLUDE})
 file(GLOB_RECURSE ALL_SRCS "*.h" "*.cpp")
 
 
-add_executable(Vend main.cpp )
-add_executable(TEST test.cpp)
+
+
 FIND_PACKAGE(OpenMP REQUIRED)
 
 #openmp
@@ -30,8 +31,27 @@ endif ()
 
 #link_directories(${PROJECT_SOURCE_DIR}/include/lib ${PLATFORM_LIBS})
 
+add_library(SRCS STATIC ${ALL_SRCS}  )
 
-add_library(SRCS STATIC ${ALL_SRCS} test.cpp)
+
+option(TEST_T "options for triangle" OFF)
+option(TEST_T1 "count triangles by vend" OFF)
+option(TEST_T2 "vend filter adj " OFF)
+if(TEST_T)
+    add_definitions(-DVEND_LEVEL=0)
+endif(TEST_T)
+if(TEST_T1)
+    add_definitions(-DVEND_LEVEL=1)
+endif(TEST_T1)
+if(TEST_T2)
+    add_definitions(-DVEND_LEVEL=2)
+endif(TEST_T2)
+add_executable(Vend main.cpp )
+add_executable(Triangle triangle_test.cpp)
+
 target_link_libraries(Vend SRCS DB_ENGINE)
-target_link_libraries(TEST SRCS DB_ENGINE)
 target_link_libraries(Vend ${GTEST})
+
+target_link_libraries(Triangle SRCS DB_ENGINE)
+add_executable(TEST test.cpp)
+target_link_libraries(TEST SRCS DB_ENGINE)
