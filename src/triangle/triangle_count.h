@@ -47,6 +47,7 @@ private:
 
     struct VendMessage {
         uint64_t adj_filtered = 0;
+        uint64_t total_adj=0;
         uint64_t edge_filtered=0;
         uint64_t total_edges=0;
     };
