@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
                                                                             edge_path, vertex_id_upper, vertex_id_min);
 
 
-#if (VEND_LEVEL < 3)
+#ifdef VEND_LEVEL
     tcount->CountByAdj();
 #else
     tcount->CountByIntersection();
