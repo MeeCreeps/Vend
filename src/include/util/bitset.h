@@ -81,7 +81,7 @@ public:
      *  @return  true: equal 1   false
      * */
     bool IsOne(size_t pos) {
-        return bits_[pos / 32] & ONE_BIT[pos % 32];
+        return bits_[pos/32] & ONE_BIT[pos % 32];
     };
 
     bool Pos_One_Is_One() {
@@ -155,13 +155,16 @@ public:
      *         return: 10
      * */
     uint32_t BlockGet(size_t begin, size_t block_size) {
+        // block_size <= 32
         size_t i = DIVIDE32(begin);
         uint32_t temp =begin + block_size - 1;
         size_t j = DIVIDE32(temp);
         if (i == j) {
-            return (bits_[i] << (begin - (i<<5))) >> (32 - block_size);
+            size_t offset = ((j+1)<<5)-temp-1;
+            return (bits_[i] << offset) & ONE_BITS_ARRAY[block_size];
+            //return (bits_[i] << (begin - (i<<5))) >> (32 - block_size);
         } else {
-            size_t offset = 31 - (MOD32 (temp));
+            size_t offset = ((j+1)<<5)-temp-1;
             return ((bits_[i] << (begin - (i<<5))) >> (32 - block_size)) | (bits_[j] >> offset);
         }
 

@@ -59,24 +59,25 @@ public:
      * */
     PairType NEpairTest(uint32_t vertex1, uint32_t vertex2) override {
 
-        PairType type1=NonNeighborTest(vertex1, vertex2);
-        PairType type2=NonNeighborTest(vertex2, vertex1);
-
-        if(type1<type2)
-            return type1;
-        else
-            return type2;
+        bool encode_type1=IsDecodable(vertex1),encode_type2=IsDecodable(vertex2);
+        if(!encode_type1 && encode_type2){
+            return NonNeighborTest(vertex2, vertex1);
+        }else if (encode_type1 &&!encode_type2){
+            return NonNeighborTest(vertex1, vertex2);
+        }else{
+            return std::min(NonNeighborTest(vertex1, vertex2),NonNeighborTest(vertex2, vertex1));
+        }
     };
 
     // f()
-    PairType NonNeighborTest(const uint32_t &vertex1, const uint32_t &vertex2) override;
+    PairType NonNeighborTest(uint32_t vertex1, uint32_t vertex2) override;
 
     /**
      *  dynamic encode
      *  call function TestNonPair to choose best range size;
      *
      * */
-    void EncodeVertex(const uint32_t &vertex_id, std::vector<uint32_t> &neighbors) override;
+    void EncodeVertex(uint32_t vertex_id, std::vector<uint32_t> &neighbors) override;
 
 
     /**
@@ -89,14 +90,14 @@ public:
      *   choose highest score between vertex1 and vertex2
      * */
     void
-    RestructChoose(const uint32_t &vertex1, std::vector<uint32_t> &neighbor1, const uint32_t &vertex2,
+    RestructChoose(uint32_t vertex1, std::vector<uint32_t> &neighbor1, uint32_t vertex2,
                    std::vector<uint32_t> &neighbor2);
 
 
     void DeletePair(uint32_t vertex1, uint32_t vertex2) override;
 
     // return false if vertex2 is not a neighbor
-    bool RemoveNeighbor(const uint32_t &vertex1, const uint32_t &vertex2);
+    bool RemoveNeighbor(uint32_t vertex1, uint32_t vertex2);
 
     /**
      *  dynamic choose for best range size
@@ -104,14 +105,14 @@ public:
      * */
 
     BitSet<PER_ENCODE_BIT_SIZE>
-    DynamicChoose(const uint32_t &vertex, std::vector<uint32_t> &neighbors, uint32_t *count = nullptr);
+    DynamicChoose(uint32_t vertex, std::vector<uint32_t> &neighbors, uint32_t *count = nullptr);
 
     // compare score and choose the highest, and build the encode
     void
     ChooseHighest(const std::vector<uint32_t> &neighbors, uint32_t *max_score,
                   BitSet<PER_ENCODE_BIT_SIZE> *best_bitset,
                   HashCount *hash_count,
-                  const uint32_t &block_size, const uint32_t &first_idx,
+                  uint32_t block_size, uint32_t first_idx,
                   const BlockType &type);
 
     void SetNonDecodable(const std::vector<uint32_t> &neighbor_encode, const std::vector<uint32_t> &neighbor_left,
@@ -126,14 +127,14 @@ public:
     *
     * */
 
-    uint32_t NePairCount(const uint32_t &vertex_id, const BitSet<PER_ENCODE_BIT_SIZE> &encode);
+    uint32_t NePairCount(uint32_t vertex_id, const BitSet<PER_ENCODE_BIT_SIZE> &encode);
 
 
     /**
      *  hash function for encode
      * @return : bit position to set
      * */
-    inline uint32_t Hash(const uint32_t &vertex_id, const uint32_t &hash_begin) {
+    inline uint32_t Hash(uint32_t vertex_id, uint32_t hash_begin) {
         return hash_begin == PER_ENCODE_BIT_SIZE ? 0 : vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
     };
 
@@ -144,16 +145,16 @@ public:
      * */
 
 
-    inline bool IsDecodable(const uint32_t &vertex) {
+    inline bool IsDecodable(uint32_t vertex) {
         return encode_bitset_[vertex].IsOne(0);
     }
 
     /**
      *  return encode integers
      * */
-    std::vector<uint32_t> GetBlockInteger(const uint32_t &vertex);
+    std::vector<uint32_t> GetBlockInteger(uint32_t vertex);
 
-    BlockType GetBlockModel(const uint32_t &vertex) {
+    BlockType GetBlockModel(uint32_t vertex) {
         if (encode_bitset_[vertex].IsOne(1))
             return BlockType::RightMost;
         if (!encode_bitset_[vertex].IsOne(2))
@@ -177,12 +178,12 @@ public:
     }
 
 
-    inline bool IsFull(const uint32_t &vertex) {
+    inline bool IsFull(uint32_t vertex) {
         assert(encode_bitset_[vertex].IsOne(0));
         return encode_bitset_[vertex].BlockGet(PER_ENCODE_BIT_SIZE - v_bits_size_, v_bits_size_) != 0;
     }
 
-    inline bool IsFull(const uint32_t &vertex, uint32_t *index_not_full) {
+    inline bool IsFull(uint32_t vertex, uint32_t *index_not_full) {
         assert(encode_bitset_[vertex].IsOne(0));
         for (uint32_t index = 1;
              index <= PER_ENCODE_BIT_SIZE - v_bits_size_ + 1; index += v_bits_size_) {
@@ -192,12 +193,12 @@ public:
         return true;
     }
 
-    inline uint32_t GetBlockSize(const uint32_t &vertex) {
+    inline uint32_t GetBlockSize(uint32_t vertex) {
         return encode_bitset_[vertex].BlockGet(3, log_k_);
     }
 
 
-    EncodeType GetEncodeType(const uint32_t &vertex) {
+    EncodeType GetEncodeType(uint32_t vertex) {
         if (!IsDecodable(vertex))
             return EncodeType::NonDecodable;
         if (IsFull(vertex))
@@ -205,13 +206,13 @@ public:
         return EncodeType::UnFull;
     }
 
-    std::vector<uint32_t> GetAllNeighbors(const uint32_t &vertex) {
+    std::vector<uint32_t> GetAllNeighbors(uint32_t vertex) {
         if (encode_bitset_[vertex].IsOne(0))
             return GetBlockInteger(vertex);
         return DbQuery(vertex);
     }
 
-    inline uint32_t GetHashBegin(const uint32_t &vertex) {
+    inline uint32_t GetHashBegin(uint32_t vertex) {
         return GetBlockSize(vertex) * v_bits_size_ + 3 + log_k_;
     }
 

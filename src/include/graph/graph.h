@@ -22,7 +22,7 @@
 #include <algorithm>
 #include "chrono"
 #include "util/timer.h"
-
+#include <random>
 class Graph {
 public:
     Graph(std::string data_path, std::string db_path) : data_path_(data_path), db_path_(db_path) {
@@ -62,12 +62,12 @@ public:
      * */
     void BuildEncode();
 
-    PairType GetEdge(const uint32_t &vertex1, const uint32_t &vertex2) {
+    PairType GetEdge(uint32_t vertex1, uint32_t vertex2) {
         return vend->Determine(vertex1, vertex2);
 
     };
 
-    void AddEdge(const uint32_t &vertex1, const uint32_t &vertex2, Timer *timer) {
+    void AddEdge(uint32_t vertex1, uint32_t vertex2, Timer *timer) {
         timer->StartTimer();
         vend->Insert(vertex1, vertex2);
         timer->StopTimer();
@@ -75,11 +75,11 @@ public:
         DbInsert(vertex1, vertex2);
     };
 
-    void GetNeighbors(const uint32_t &vertex1, std::vector<uint32_t> *neighbors) {
+    void GetNeighbors(uint32_t vertex1, std::vector<uint32_t> *neighbors) {
         graph_db_->Get(vertex1, neighbors);
     }
 
-    void RemoveEdge(const uint32_t &vertex1, const uint32_t &vertex2, Timer *timer) {
+    void RemoveEdge(uint32_t vertex1, uint32_t vertex2, Timer *timer) {
         timer->StartTimer();
         vend->Delete(vertex1, vertex2);
         timer->StopTimer();
@@ -94,11 +94,11 @@ public:
     void BackUpDb();
 
     void DestoryDb();
-    void DbInsert(const uint32_t &vertex1, const uint32_t &vertex2);
+    void DbInsert(uint32_t vertex1, uint32_t vertex2);
 
-    void DbDelete(const uint32_t &vertex1, const uint32_t &vertex2);
+    void DbDelete(uint32_t vertex1, uint32_t vertex2);
 
-    bool DbQuery(const uint32_t &vertex1, const uint32_t &vertex2);
+    bool DbQuery(uint32_t vertex1, uint32_t vertex2);
 
     VendType GetVendType() { return vend_type_; }
 
