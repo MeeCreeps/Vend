@@ -62,6 +62,7 @@ void TriangleCount::CountByAdj() {
                     }
                 }
             }
+            ++vend_message_.total_adj;
             if(filtered){
                 ++vend_message_.adj_filtered;
                 continue;
@@ -115,24 +116,6 @@ void TriangleCount::CountByIntersection() {
         for (auto u:neighbors_of_v) {
             if (v >= u)
                 continue;
-#if (VEND_LEVEL >= 3)
-            // vend test
-            bool filtered=true;
-            for(auto n:neighbors_of_v){
-                if(n>v){
-
-                    if(vend_->Determine(n,u)!=PairType::NonNeighbor){
-                        filtered= false;
-                        break;
-                    }
-                }
-            }
-            if(filtered){
-                ++vend_message_.adj_filtered;
-                continue;
-            }
-
-#endif
             std::vector<uint32_t> neighbors_of_u;
             adj_db_->Get(u, &neighbors_of_u);
             count_ += InterSection(neighbors_of_u, neighbors_of_v, u);
@@ -212,8 +195,9 @@ void TriangleCount::OutputMessage() {
 #endif
 
 #if (VEND_LEVEL >= 2)
-    std::cout<< " Adj Filtered times : "<<vend_message_.adj_filtered<<"\n";
-    output<<"adj filtered"<<','<<vend_message_.adj_filtered;
+    std::cout<< " Adj Filtered times : "<<vend_message_.adj_filtered<<"\n"
+            << "total adj :"<<vend_message_.total_adj<<"\n";
+    output<<"adj filtered"<<','<<vend_message_.adj_filtered<<','<<"total adj"<<','<<vend_message_.total_adj;
 #endif
     output << "\n";
     output.close();
