@@ -161,7 +161,7 @@ public:
         size_t j = DIVIDE32(temp);
         if (i == j) {
             size_t offset = ((j+1)<<5)-temp-1;
-            return (bits_[i] << offset) & ONE_BITS_ARRAY[block_size];
+            return (bits_[i] >> offset) & ONE_BITS_ARRAY[block_size];
             //return (bits_[i] << (begin - (i<<5))) >> (32 - block_size);
         } else {
             size_t offset = ((j+1)<<5)-temp-1;
