@@ -58,14 +58,22 @@ public:
      *  @return true, if both hybrid functions is true
      * */
     PairType NEpairTest(uint32_t vertex1, uint32_t vertex2) override {
-
         bool encode_type1=IsDecodable(vertex1),encode_type2=IsDecodable(vertex2);
-        if(!encode_type1 && encode_type2){
-            return NonNeighborTest(vertex2, vertex1);
-        }else if (encode_type1 &&!encode_type2){
-            return NonNeighborTest(vertex1, vertex2);
+        if(encode_type1<encode_type2){
+          std::swap(encode_type1,encode_type2);
+          std::swap(vertex1,vertex2);
+        }
+        PairType type1 = NonNeighborTest(vertex1, vertex2);
+        if(encode_type1==true&&encode_type2==false){
+          return type1;
         }else{
-            return std::min(NonNeighborTest(vertex1, vertex2),NonNeighborTest(vertex2, vertex1));
+        // both are Partical Encode or decodable
+          PairType type2 = NonNeighborTest(vertex2, vertex1);
+          if(type1==PairType::Neighbor||type2==PairType::Neighbor)
+            return PairType::Neighbor;
+          else if(type1==PairType::NonNeighbor&&type2==PairType::NonNeighbor)
+            return PairType::NonNeighbor;
+          return PairType::Uncertain;
         }
     };
 
