@@ -69,11 +69,7 @@ public:
         }else{
         // both are Partical Encode or decodable
           PairType type2 = NonNeighborTest(vertex2, vertex1);
-          if(type1==PairType::Neighbor||type2==PairType::Neighbor)
-            return PairType::Neighbor;
-          else if(type1==PairType::NonNeighbor&&type2==PairType::NonNeighbor)
-            return PairType::NonNeighbor;
-          return PairType::Uncertain;
+          return std::min(type1,type2);
         }
     };
 
