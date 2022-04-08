@@ -23,30 +23,12 @@ PairType HybridEncode::NonNeighborTest(uint32_t vertex1, const DecodeInfo &decod
         if (vertex2 - decode_info1.min <= decode_info1.max - decode_info1.min) {
             return encode_bitset_[vertex1].BlockFind(BLOCK_BEGIN_INDEX, v_bits_size_, decode_info1.block_num, vertex2);
         } else {
-            if (decode_info1.hash_begin == PER_ENCODE_BIT_SIZE ||
-                encode_bitset_[vertex1].IsOne(Hash(vertex2, decode_info1.hash_begin)))
+            if (encode_bitset_[vertex1].IsOne(Hash(vertex2, decode_info1.hash_begin)))
                 return PairType::Uncertain;
             else
                 return PairType::NonNeighbor;
         }
 
-//        // search hash part
-//        if(vertex2<decode_info1.min || vertex2>decode_info1.max){
-//            if(encode.IsOne(Hash(vertex2,decode_info1.hash_begin)))
-//                return PairType::Uncertain;
-//            else
-//                return PairType::NonNeighbor;
-//            //if(encode.IsOne(Hash(vertex2,decode_info1.hash_begin)))
-//            //    return PairType::Uncertain;
-//            //else
-//            //    return PairType::NonNeighbor;
-//        }
-//        // search block part
-//        if(vertex2==decode_info1.min||vertex2==decode_info1.max)
-//            return PairType::Neighbor;
-//        else{
-//            return encode.BlockFind(BLOCK_BEGIN_INDEX,v_bits_size_,decode_info1.block_num,vertex2);
-//        }
     }
 }
 

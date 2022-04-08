@@ -59,41 +59,6 @@ public:
     PairType
     NEpairTest(uint32_t vertex1, const DecodeInfo &decode_info1, uint32_t vertex2, const DecodeInfo &decode_info2) {
 
-
-
-//        if (decode_info1.decodable && !decode_info2.decodable)
-//            return NonNeighborTest(vertex1, decode_info1, vertex2);
-//        else if (!decode_info1.decodable && decode_info2.decodable)
-//            return NonNeighborTest(vertex2, decode_info2, vertex1);
-//        else
-//            return std::min(NonNeighborTest(vertex1, decode_info1, vertex2),
-//                            NonNeighborTest(vertex2, decode_info2, vertex1));
-
-        /**
-         *  version 2
-         * */
-//        if (decode_info1.decodable && !decode_info2.decodable)
-//            return NonNeighborTest(vertex1, decode_info1, vertex2);
-//        else if (!decode_info1.decodable && decode_info2.decodable)
-//            return NonNeighborTest(vertex2, decode_info2, vertex1);
-//        else if(decode_info1.decodable && decode_info2.decodable){
-//            PairType type1 = NonNeighborTest(vertex1, decode_info1, vertex2);
-//            if(type1==PairType::Neighbor)
-//                return PairType::Neighbor;
-//            else
-//                return NonNeighborTest(vertex2, decode_info2, vertex1);
-//        }else{
-//            PairType type1 = NonNeighborTest(vertex1, decode_info1, vertex2);
-//            if(type1!=PairType::Uncertain)
-//                return type1;
-//            else
-//                return NonNeighborTest(vertex2, decode_info2, vertex1);
-//        }
-
-        /**
-         *  version 3
-         * */
-
         if (decode_info1.decodable && !decode_info2.decodable)
             return NonNeighborTest(vertex1, decode_info1, vertex2);
         else if (!decode_info1.decodable && decode_info2.decodable)
@@ -210,8 +175,8 @@ public:
      * @return : bit position to set
      * */
     uint32_t Hash(uint32_t vertex_id, uint32_t hash_begin) {
-//        return hash_begin == PER_ENCODE_BIT_SIZE ? 0 : vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
-        return vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
+       return hash_begin == PER_ENCODE_BIT_SIZE ? 0 : vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
+
     };
 
 
