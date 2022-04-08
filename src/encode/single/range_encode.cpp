@@ -10,7 +10,7 @@
 
 #include "encode/single/range_encode.h"
 
-PairType RangeEncode::NonNeighborTest(const uint32_t &vertex1, const uint32_t &vertex2) {
+PairType RangeEncode::NonNeighborTest(uint32_t vertex1, uint32_t vertex2) {
 
     auto &encode = encode_bitset_[vertex1];
     if (GetFlag(vertex1)) {
@@ -35,7 +35,7 @@ PairType RangeEncode::NonNeighborTest(const uint32_t &vertex1, const uint32_t &v
     }
 }
 
-std::vector<uint32_t> RangeEncode::GetBlockInt(const uint32_t &vertex) {
+std::vector<uint32_t> RangeEncode::GetBlockInt(uint32_t vertex) {
     std::vector<uint32_t> block;
     if (GetFlag(vertex)) {
         for (uint32_t i = 1; i <= max_int_size_; ++i) {
@@ -51,7 +51,7 @@ std::vector<uint32_t> RangeEncode::GetBlockInt(const uint32_t &vertex) {
     }
 }
 
-void RangeEncode::EncodeVertex(const uint32_t &vertex_id, std::vector<uint32_t> &neighbors) {
+void RangeEncode::EncodeVertex(uint32_t vertex_id, std::vector<uint32_t> &neighbors) {
     auto &encode = encode_bitset_[vertex_id];
     encode.Clear();
     if (neighbors.size() <= max_int_size_) {
@@ -88,7 +88,7 @@ void RangeEncode::EncodeVertex(const uint32_t &vertex_id, std::vector<uint32_t> 
     }
 }
 
-std::vector<uint32_t> RangeEncode::GetAllNeighbors(const uint32_t &vertex) {
+std::vector<uint32_t> RangeEncode::GetAllNeighbors(uint32_t vertex) {
     if (GetFlag(vertex))
         return GetBlockInt(vertex);
     return DbQuery(vertex);
@@ -117,7 +117,7 @@ void RangeEncode::DeletePair(uint32_t vertex1, uint32_t vertex2) {
 
 }
 
-bool RangeEncode::RemoveNeighbor(const uint32_t &vertex1, const uint32_t &vertex2) {
+bool RangeEncode::RemoveNeighbor(uint32_t vertex1, uint32_t vertex2) {
     std::vector<uint32_t> neighbors = GetAllNeighbors(vertex1);
     if(Utils::binary_erase(neighbors,vertex2)){
         EncodeVertex(vertex1, neighbors);

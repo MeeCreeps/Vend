@@ -11,14 +11,18 @@
 #ifndef VEND_TRIANGLE_H
 #define VEND_TRIANGLE_H
 
-#include "vend/hybrid_vend.h"
+#include "encode/single/hybrid_encode.h"
 #include "util/timer.h"
 #include "dbengine/rocksdb.h"
 #define VEND_LEVEL 0
 
 class TriangleCount {
 public:
-
+    struct time_message{
+        uint32_t id;
+        int degree;
+        double time;
+    };
     TriangleCount(std::string adj_db_path, std::string encode_path, std::string output_path, std::string edge_path,
                   uint32_t vertex_id_upper, uint32_t vertex_id_min) : adj_db_path_(
             adj_db_path), encode_path_(encode_path), output_path_(output_path), count_(0), vertex_id_upper_(
@@ -42,7 +46,7 @@ public:
 
     void OutputMessage();
 
-
+    void OutTimer(std::vector<time_message>& node_time);
 private:
 
     struct VendMessage {
@@ -50,20 +54,27 @@ private:
         uint64_t total_adj=0;
         uint64_t edge_filtered=0;
         uint64_t total_edges=0;
+
+        VendMessage operator+=(const VendMessage &rhs){
+            total_edges+=rhs.total_edges;
+            edge_filtered+=rhs.edge_filtered;
+            total_edges+=rhs.total_edges;
+        }
+
     };
 
     Timer timer_;
-    Timer search_timer_;
     std::string encode_path_;
     std::string adj_db_path_;
     std::string output_path_;
     std::shared_ptr<DbEngine> adj_db_;
-    std::shared_ptr<Vend> vend_;
+    std::shared_ptr<HybridEncode> encode_;
     std::vector<int> degrees_;
     uint32_t vertex_id_upper_;
     uint32_t vertex_id_min_;
+    int max_degree_=0;
     uint64_t count_;
-    VendMessage vend_message_;
+    VendMessage encode_message_;
 };
 
 

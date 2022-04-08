@@ -68,7 +68,7 @@ void Graph::BuildEncode() {
 
 }
 
-void Graph::DbInsert(const uint32_t &vertex1, const uint32_t &vertex2) {
+void Graph::DbInsert(uint32_t vertex1, uint32_t vertex2) {
     std::vector<uint32_t> neighbors;
 
     graph_db_->Get(vertex1, &neighbors);
@@ -83,7 +83,7 @@ void Graph::DbInsert(const uint32_t &vertex1, const uint32_t &vertex2) {
 
 }
 
-void Graph::DbDelete(const uint32_t &vertex1, const uint32_t &vertex2) {
+void Graph::DbDelete(uint32_t vertex1, uint32_t vertex2) {
 
     std::vector<uint32_t> neighbors;
 
@@ -107,7 +107,7 @@ void Graph::DbDelete(const uint32_t &vertex1, const uint32_t &vertex2) {
 
 }
 
-bool Graph::DbQuery(const uint32_t &vertex1, const uint32_t &vertex2) {
+bool Graph::DbQuery(uint32_t vertex1, uint32_t vertex2) {
     std::vector<uint32_t> neighbors;
     graph_db_->Get(vertex1, &neighbors);
     auto iter = std::find(neighbors.begin(), neighbors.end(), vertex2);

@@ -36,9 +36,6 @@ void RangeVend::BuildEncoding() {
         std::string value;
         std::vector<uint32_t> neighbors;
         const int &vertex = first->id;
-        if(vertex==609605){
-            std::cout<<"\n";
-        }
         //update neighbor
         for (auto &v:adjacency_list_[vertex]) {
             if (v == 0)
@@ -59,6 +56,11 @@ void RangeVend::BuildEncoding() {
         encodes_->EncodeVertex(vertex, neighbors);
     }
     std::cout << "k core finished : kcore size:" << VERTEX_SIZE - k_core_order.size() << "\n";
+    uint32_t edge_left=0;
+    for(auto &v:adjacency_list_){
+        edge_left+=v.size();
+    }
+    std::cout<<"edge left:"<<edge_left/2<<"\n";
     int index = 0;
     // encode left nodes
     std::vector<K_Node> nodes_left(k_core_order.begin(), k_core_order.end());
@@ -68,9 +70,6 @@ void RangeVend::BuildEncoding() {
 //    #pragma omp parallel for
     for (int i = 0; i < nodes_left.size(); ++i) {
         uint32_t vertex = nodes_left[i].id;
-        if(vertex==609605){
-            std::cout<<"\n";
-        }
         std::vector<uint32_t> neighbors;
         for (auto &neighbor:adjacency_list_[vertex])
             neighbors.push_back(neighbor);

@@ -33,14 +33,14 @@ public:
 
     bool Close() override;
 
-    bool Get(const uint32_t &key, uint32_t *value) override;
+    bool Get(uint32_t key, uint32_t *value) override;
 
-    bool Get(const uint32_t &key, std::vector<uint32_t> *value) override;
-    bool Get(const uint32_t &key, std::set<uint32_t> *value) override;
+    bool Get(uint32_t key, std::vector<uint32_t> *value) override;
+    bool Get(uint32_t key, std::set<uint32_t> *value) override;
 
-    bool Put(const uint32_t &key, const uint32_t &value) override;
+    bool Put(uint32_t key, uint32_t value) override;
 
-    bool Put(const uint32_t &key, const std::vector<uint32_t> &value) override;
+    bool Put(uint32_t key, const std::vector<uint32_t> &value) override;
 
     void BatchWrite(const std::vector<uint32_t> &keys, const std::vector<std::vector<uint32_t>> &values) override;
 
@@ -55,7 +55,7 @@ public:
      * */
     char *ValueToString(const std::vector<uint32_t> &value, size_t *len);
 
-    char *ValueToString(const uint32_t &value, size_t *len);
+    char *ValueToString(uint32_t value, size_t *len);
 
     void StringToValue(const std::string &data, std::vector<uint32_t> *value);
     void StringToValue(const std::string &data, std::set<uint32_t> *value);

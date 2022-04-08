@@ -45,7 +45,7 @@ bool RocksDb::Open() {
     return s.ok();
 }
 
-bool RocksDb::Get(const uint32_t &key, uint32_t *value) {
+bool RocksDb::Get(uint32_t key, uint32_t *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -54,7 +54,7 @@ bool RocksDb::Get(const uint32_t &key, uint32_t *value) {
     return true;
 }
 
-bool RocksDb::Get(const uint32_t &key, std::vector<uint32_t> *value) {
+bool RocksDb::Get(uint32_t key, std::vector<uint32_t> *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -63,7 +63,7 @@ bool RocksDb::Get(const uint32_t &key, std::vector<uint32_t> *value) {
     return true;
 }
 
-bool RocksDb::Get(const uint32_t &key, std::set<uint32_t> *value) {
+bool RocksDb::Get(uint32_t key, std::set<uint32_t> *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -96,7 +96,7 @@ void RocksDb::StringToValue(const std::string &data, uint32_t *value) {
     *value = std::stoul(data);
 }
 
-bool RocksDb::Put(const uint32_t &key, const uint32_t &value) {
+bool RocksDb::Put(uint32_t key, uint32_t value) {
     size_t len;
     char *data = ValueToString(value, &len);
     Status s = rocksdb_->Put(write_options_, std::to_string(key), Slice(data, len));
@@ -104,7 +104,7 @@ bool RocksDb::Put(const uint32_t &key, const uint32_t &value) {
     return s.ok();
 }
 
-bool RocksDb::Put(const uint32_t &key, const std::vector<uint32_t> &value) {
+bool RocksDb::Put(uint32_t key, const std::vector<uint32_t> &value) {
     if (value.empty())
         return true;
     size_t len;
@@ -127,7 +127,7 @@ char *RocksDb::ValueToString(const std::vector<uint32_t> &value, size_t *len) {
     return data;
 }
 
-char *RocksDb::ValueToString(const uint32_t &value, size_t *len) {
+char *RocksDb::ValueToString(uint32_t value, size_t *len) {
     char *data = nullptr;
     *len = sizeof(uint32_t);
     data = (char *) (malloc(*len));

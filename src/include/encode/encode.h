@@ -20,6 +20,18 @@
 class Encode {
 
 public:
+    struct DecodeInfo {
+        bool decodable;
+        uint16_t block_num;
+        uint16_t hash_begin;
+        uint32_t min = 0;
+        uint32_t max = 0;
+
+        bool operator<(const DecodeInfo &lsh) const {
+            return this->decodable < lsh.decodable;
+        }
+    };
+
     Encode() : vertex_id_upper_(VERTEX_SIZE + 1), vertex_size_(VERTEX_SIZE) {}
 
     /**
@@ -28,6 +40,11 @@ public:
      * */
     virtual PairType NEpairTest(uint32_t vertex1, uint32_t vertex2) = 0;
 
+    virtual PairType
+    NEpairTest(uint32_t vertex1, const DecodeInfo &decode_info1, uint32_t vertex2, const DecodeInfo &decode_info2) {};
+
+    virtual inline void Decode(uint32_t vertex, DecodeInfo &decode_info) {};
+
     // encode edge<vertex1,vertex2>
     virtual void EdgeSet(uint32_t vertex1, uint32_t vertex2) {};
 
@@ -35,7 +52,7 @@ public:
      *  encode one vertex by it's neighbors
      *
      * */
-    virtual void EncodeVertex(const uint32_t &vertex_id, std::vector<uint32_t> &neighbors) {};
+    virtual void EncodeVertex(uint32_t vertex_id, std::vector<uint32_t> &neighbors) {};
 
     virtual void InsertPair(uint32_t vertex1, uint32_t vertex2) = 0;
 
@@ -61,12 +78,13 @@ public:
 
     virtual uint32_t GetIntSize() {};
 
-    void SetDb(DbEngine *db){
-        db_=db;
+    void SetDb(DbEngine *db) {
+        db_ = db;
 
     }
+
     //query neighbors from adj db
-    std::vector<uint32_t> DbQuery(const uint32_t &vertex) {
+    std::vector<uint32_t> DbQuery(uint32_t vertex) {
         assert(db_ != nullptr);
         std::vector<uint32_t> neighbors;
         db_->Get(vertex, &neighbors);

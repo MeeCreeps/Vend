@@ -52,61 +52,61 @@ int main(int argc, char **argv) {
     }
     std::cout << "build finished \n";
 
-    std::cout << "start deleting \n";
-    for (int i = 1; i < plan_nums; ++i) {
-        DeleteExecution *delete_execution = new DeleteExecution(delete_pair_path, vend_prefix, output_path, db_path,
-                                                                types[i]);
-        delete_execution->Execute();
-        delete delete_execution;
-    }
-    std::cout << "delete experiment finished \n";
-
-    // insert experiment
-    std::cout << "start inserting \n";
-    for (int i = 1; i < plan_nums; ++i) {
-        InsertExecution *insert_execution = new InsertExecution(insert_pair_path, vend_prefix, output_path, db_path,
-                                                                types[i]);
-        insert_execution->Execute();
-        delete insert_execution;
-    }
-    std::cout << "insert experiment finished \n";
-
-   // query experiment , return query time
-    std::cout << "start querying \n";
-    for (int i = 0; i < plan_nums; ++i) {
-        QueryExecution *query_execution = new QueryExecution(query_pair_path, vend_prefix, output_path, db_path,
-                                                             types[i]);
-        query_execution->Execute();
-        delete query_execution;
-    }
-    std::cout << "query time experiment finished \n";
-
-    // query experiment , return query time
-    std::cout << "start random querying \n";
-    for (int i = 0; i < plan_nums; ++i) {
-        RandomQueryExecution *random_query_execution = new RandomQueryExecution(query_pair_path, vend_prefix, output_path, db_path,
-                                                             types[i]);
-        random_query_execution->Execute();
-        delete random_query_execution;
-    }
-    std::cout << "query time experiment finished \n";
-
-
-
-    // query experiment and return score
-    std::cout << "start getting scores\n";
-    ScoreExecution *score_execution = new ScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
-    score_execution->Execute();
-    delete score_execution;
-    std::cout << "score experiment finished \n";
-
-
-    // random score
-    std::cout << "start getting random scores\n";
-    RandomScoreExecution *random_score_execution = new RandomScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
-    random_score_execution->Execute();
-    delete random_score_execution;
-    std::cout << "score experiment finished \n";
+//    std::cout << "start deleting \n";
+//    for (int i = 1; i < plan_nums; ++i) {
+//        DeleteExecution *delete_execution = new DeleteExecution(delete_pair_path, vend_prefix, output_path, db_path,
+//                                                                types[i]);
+//        delete_execution->Execute();
+//        delete delete_execution;
+//    }
+//    std::cout << "delete experiment finished \n";
+//
+//    // insert experiment
+//    std::cout << "start inserting \n";
+//    for (int i = 1; i < plan_nums; ++i) {
+//        InsertExecution *insert_execution = new InsertExecution(insert_pair_path, vend_prefix, output_path, db_path,
+//                                                                types[i]);
+//        insert_execution->Execute();
+//        delete insert_execution;
+//    }
+//    std::cout << "insert experiment finished \n";
+//
+//   // query experiment , return query time
+//    std::cout << "start querying \n";
+//    for (int i = 0; i < plan_nums; ++i) {
+//        QueryExecution *query_execution = new QueryExecution(query_pair_path, vend_prefix, output_path, db_path,
+//                                                             types[i]);
+//        query_execution->Execute();
+//        delete query_execution;
+//    }
+//    std::cout << "query time experiment finished \n";
+//
+//    // query experiment , return query time
+//    std::cout << "start random querying \n";
+//    for (int i = 0; i < plan_nums; ++i) {
+//        RandomQueryExecution *random_query_execution = new RandomQueryExecution(query_pair_path, vend_prefix, output_path, db_path,
+//                                                             types[i]);
+//        random_query_execution->Execute();
+//        delete random_query_execution;
+//    }
+//    std::cout << "query time experiment finished \n";
+//
+//
+//
+//    // query experiment and return score
+//    std::cout << "start getting scores\n";
+//    ScoreExecution *score_execution = new ScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
+//    score_execution->Execute();
+//    delete score_execution;
+//    std::cout << "score experiment finished \n";
+//
+//
+//    // random score
+//    std::cout << "start getting random scores\n";
+//    RandomScoreExecution *random_score_execution = new RandomScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
+//    random_score_execution->Execute();
+//    delete random_score_execution;
+//    std::cout << "score experiment finished \n";
 }
 
 #endif //MAIN

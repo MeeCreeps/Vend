@@ -20,14 +20,14 @@ file(GLOB_RECURSE ALL_SRCS "*.h" "*.cpp")
 
 
 
-FIND_PACKAGE(OpenMP REQUIRED)
+#FIND_PACKAGE(OpenMP REQUIRED)
 
 #openmp
-if (OPENMP_FOUND)
-    message("OPENMP FOUND")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif ()
+#if (OPENMP_FOUND)
+#    message("OPENMP FOUND")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#endif ()
 
 #link_directories(${PROJECT_SOURCE_DIR}/include/lib ${PLATFORM_LIBS})
 
@@ -35,10 +35,14 @@ add_library(SRCS STATIC ${ALL_SRCS}  )
 
 
 option(TEST_T "options for triangle" OFF)
+option(TEST "options for intersection filter " OFF)
 option(TEST_T1 "count triangles by vend" OFF)
 option(TEST_T2 "vend filter adj " OFF)
 if(TEST_T)
     add_definitions(-DVEND_LEVEL=0)
+
+if(TEST)
+    add_definitions(-DVEND_LEVEL=-1)
 endif(TEST_T)
 if(TEST_T1)
     add_definitions(-DVEND_LEVEL=1)

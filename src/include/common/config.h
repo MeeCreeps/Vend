@@ -36,8 +36,8 @@ static uint32_t LOG_K = static_cast<uint32_t>(ceil(log2((double) MAX_K_CORE_SIZE
 static uint32_t MAX_INTEGER_SIZE = static_cast<uint32_t >((PER_ENCODE_BIT_SIZE - 3 - LOG_K) / VERTEX_BIT_SIZE);
 
 static constexpr int THREAD_NUMS = 1;
-enum class PairType{
-    Neighbor=0,NonNeighbor=1,Uncertain=2
+enum  PairType{
+    Neighbor=1,NonNeighbor=2,Uncertain=4
 
 };
 #endif //VEND_CONFIG_H

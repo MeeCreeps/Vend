@@ -31,6 +31,7 @@ public:
 
     };
 
+
     void StopTimer() {
         assert(status == TimerStatus::on);
         std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
@@ -41,7 +42,7 @@ public:
 
     double CountTime() {
 //        return (double)time_cost_ms_.count()*std::chrono::milliseconds::period::num/std::chrono::milliseconds::period::den;
-        return (double)time_cost_ms_.count()*std::chrono::microseconds::period::num/std::chrono::microseconds::period::den;
+        return (double)time_cost_ms_.count();
 //        return time_cost_ms_.count();
     }
 
