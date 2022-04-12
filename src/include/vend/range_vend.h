@@ -17,7 +17,7 @@ class RangeVend:public Vend{
 
 
 public:
-    RangeVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : Vend(
+    RangeVend(const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : Vend(
             adj_list,encode_path,db) {
         Init(db);
     }

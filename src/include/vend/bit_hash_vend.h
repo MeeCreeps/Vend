@@ -16,7 +16,7 @@
 
 class BitHashVend : public Vend {
 public:
-    BitHashVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db)
+    BitHashVend(const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db)
             : Vend(adj_list, encode_path,db) {
         encodes_ = new BitHashEncode();
         encodes_->SetDb(db);

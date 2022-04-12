@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.7)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ")
 project(Vend CXX)
 
 set(VEND_SRC_INCLUDE ${PROJECT_SOURCE_DIR}/src/include ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/include/thirdpart)
@@ -12,7 +12,7 @@ set(GTEST
 # db library
 file(GLOB DB_ENGINE_SRC ${PROJECT_SOURCE_DIR}/src/dbengine/*.cpp ${PROJECT_SOURCE_DIR}/src/include/dbengine/*.h)
 add_library(DB_ENGINE STATIC ${DB_ENGINE_SRC} )
-target_link_libraries(DB_ENGINE librocksdb.a -lpthread -lsnappy -lbz2 -lzstd -ldl libz.so -llz4)
+target_link_libraries(DB_ENGINE librocksdb.a -lpthread -lsnappy -lbz2 -lzstd -ldl libz.so -llz4 -lneo4j-client -lssl -lcrypto -lm)
 
 include_directories(${VEND_SRC_INCLUDE})
 file(GLOB_RECURSE ALL_SRCS "*.h" "*.cpp")
@@ -20,14 +20,14 @@ file(GLOB_RECURSE ALL_SRCS "*.h" "*.cpp")
 
 
 
-#FIND_PACKAGE(OpenMP REQUIRED)
+FIND_PACKAGE(OpenMP REQUIRED)
 
 #openmp
-#if (OPENMP_FOUND)
-#    message("OPENMP FOUND")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#endif ()
+if (OPENMP_FOUND)
+    message("OPENMP FOUND")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif ()
 
 #link_directories(${PROJECT_SOURCE_DIR}/include/lib ${PLATFORM_LIBS})
 
@@ -38,12 +38,16 @@ option(TEST_T "options for triangle" OFF)
 option(TEST "options for intersection filter " OFF)
 option(TEST_T1 "count triangles by vend" OFF)
 option(TEST_T2 "vend filter adj " OFF)
-if(TEST_T)
-    add_definitions(-DVEND_LEVEL=0)
 
 if(TEST)
     add_definitions(-DVEND_LEVEL=-1)
+endif(TEST)
+
+if(TEST_T)
+    add_definitions(-DVEND_LEVEL=0)
 endif(TEST_T)
+
+
 if(TEST_T1)
     add_definitions(-DVEND_LEVEL=1)
 endif(TEST_T1)

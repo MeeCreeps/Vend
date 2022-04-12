@@ -17,11 +17,11 @@
 
 class Vend {
 public:
-    Vend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path, DbEngine *db) :
+    Vend(const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path, DbEngine *db) :
             adjacency_list_(adj_list), encode_path_(encode_path), data_db_(db) {
     }
 
-    Vend(const std::vector<std::set<uint32_t >> &adj_list, DbEngine *data_db) :
+    Vend(const std::vector<std::vector<uint32_t >> &adj_list, DbEngine *data_db) :
             adjacency_list_(adj_list), data_db_(data_db) {
     }
 
@@ -44,7 +44,7 @@ public:
         uint32_t key;
         std::vector<uint32_t> value;
         while (data_db_->Next(&key, &value)) {
-            adjacency_list_[key].insert(value.begin(), value.end());
+            adjacency_list_[key].assign(value.begin(), value.end());
         }
 
     }
@@ -77,7 +77,7 @@ public:
     }
 protected:
     DbEngine *data_db_ = nullptr;
-    std::vector<std::set<uint32_t >> adjacency_list_;
+    std::vector<std::vector<uint32_t >> adjacency_list_;
     Encode *encodes_ = nullptr;
     std::string encode_path_;
 };

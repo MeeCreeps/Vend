@@ -38,7 +38,7 @@ public:
      *
      * */
     static Vend *
-    GetEncode(VendType vend_type, const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,
+    GetEncode(VendType vend_type, const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path,
               DbEngine *db) {
         switch (vend_type) {
             case VendType::BloomFilterInt:

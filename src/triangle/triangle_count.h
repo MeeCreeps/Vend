@@ -14,6 +14,8 @@
 #include "encode/single/hybrid_encode.h"
 #include "util/timer.h"
 #include "dbengine/rocksdb.h"
+#include "dbengine/neo4j.h"
+
 #define VEND_LEVEL 0
 
 class TriangleCount {
@@ -47,6 +49,10 @@ public:
     void OutputMessage();
 
     void OutTimer(std::vector<time_message>& node_time);
+
+    void ThreadDecode(int tid,int thread_num,int degree,std::vector<uint32_t>& vertex_id, HybridEncode::DecodeInfo *decodeInfo);
+
+    int GetThreadNum(int degree);
 private:
 
     struct VendMessage {

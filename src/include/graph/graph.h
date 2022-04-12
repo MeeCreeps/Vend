@@ -115,7 +115,7 @@ private:
     std::string vend_path_;
     VendType vend_type_;
     uint32_t vertex_size = VERTEX_SIZE;
-    std::vector<std::set<uint32_t >> adjacency_list;
+    std::vector<std::vector<uint32_t >> adjacency_list;
     DbEngine *graph_db_= nullptr;
     DbEngine *encode_db_= nullptr;
     Vend *vend = nullptr;

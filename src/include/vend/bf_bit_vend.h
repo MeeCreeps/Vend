@@ -17,7 +17,7 @@
 class BFilterBitVend : public Vend {
 
 public:
-    BFilterBitVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db)
+    BFilterBitVend(const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db)
             : Vend(adj_list, encode_path,db){
         encodes_ = new BFilterBitEncode();
         encodes_->SetDb(db);

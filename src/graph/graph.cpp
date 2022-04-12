@@ -47,8 +47,8 @@ void Graph::LoadData() {
         line_string >> vertex1 >> vertex2;
         assert(vertex1 != vertex2);
 
-        adjacency_list[vertex1].insert(vertex2);
-        adjacency_list[vertex2].insert(vertex1);
+        adjacency_list[vertex1].push_back(vertex2);
+        adjacency_list[vertex2].push_back(vertex1);
     }
     infile.close();
 }

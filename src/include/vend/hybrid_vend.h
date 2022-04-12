@@ -19,7 +19,7 @@
 class HybridVend : public RangeVend {
 
 public:
-    HybridVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : RangeVend(
+    HybridVend(const std::vector<std::vector<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : RangeVend(
             adj_list, encode_path,db) {
         Init(db);
     }
