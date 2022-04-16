@@ -16,7 +16,7 @@
 #include "dbengine/rocksdb.h"
 #include "dbengine/neo4j.h"
 
-#define VEND_LEVEL 0
+
 
 class TriangleCount {
 public:

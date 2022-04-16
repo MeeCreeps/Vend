@@ -1,10 +1,10 @@
 //===----------------------------------------------------------------------===//
 //
-//                         
 //
-// 
 //
-// 
+//
+//
+//
 //
 //===----------------------------------------------------------------------===//
 
@@ -12,7 +12,7 @@
 #include <memory>
 #include <omp.h>
 #include <thread>
-#define VEND_LEVEL 2
+
 /*
  *  @VEND_LEVEL
  *      0  :  Triangle count without vend filter
@@ -90,7 +90,7 @@ void TriangleCount::CountByAdj() {
                 n=neighbors_of_v[j];
                 n_degree = degrees_[n];
                 if(!filtered)
-                  continue;
+                    continue;
                 if(n_degree>u_degree || (n_degree == u_degree && n>u)){
                     PairType type = encode_->NEpairTest(n,v_neighbor_info[j],u,v_neighbor_info[i]);
                     if(type == PairType::Uncertain ){
@@ -148,17 +148,18 @@ void TriangleCount::CountByAdj() {
 
 void TriangleCount::CountByIntersection() {
 
+    Timer filter_time;
     timer_.StartTimer();
     // id restrict :  v< u < intersection
+
     HybridEncode::DecodeInfo v_neighbor_info[max_degree_];
-    HybridEncode::DecodeInfo info_of_v,info_of_u;
-    int v_degree,u_degree,n_degree;
+    HybridEncode::DecodeInfo info_of_v;
     std::vector<uint32_t> neighbors_of_u,neighbors_of_v;
-    uint32_t u,n,v_neighbor_size,u_neighbor_size;
-    for (uint32_t v = vertex_id_min_; v < vertex_id_upper_; ++v) {
+    uint32_t u,n,v_neighbor_size;
+    for (uint32_t v = vertex_id_upper_-1; v >=vertex_id_min_;--v) {
         adj_db_->Get(v, &neighbors_of_v);
         v_neighbor_size = neighbors_of_v.size();
-
+        std::sort(neighbors_of_v.begin(),neighbors_of_v.end());
 #ifdef VEND_LEVEL
         //decode first
         encode_->Decode(v,info_of_v);
@@ -189,19 +190,27 @@ void TriangleCount::CountByIntersection() {
                     }
                 }
             }
-            //++encode_message_.total_adj;
+            ++encode_message_.total_adj;
             if(filtered){
+
                 count_+=triangles;
-                //++encode_message_.adj_filtered;
-                continue;
+                ++encode_message_.adj_filtered;
+                filter_time.StartTimer();
             }
 #endif
 
             adj_db_->Get(u, &neighbors_of_u);
+            std::sort(neighbors_of_u.begin(),neighbors_of_u.end());
             count_ += InterSection(neighbors_of_u, neighbors_of_v, u);
+
+            if(filtered)
+                filter_time.StopTimer();
+
         }
     }
     timer_.StopTimer();
+    std::cout<<"filter time:"<<filter_time.CountTime()/1000000<<std::endl;
+    std::cout<<"left time:"<<(timer_.CountTime()-filter_time.CountTime())/1000000<<std::endl;
     OutputMessage();
 
 }
@@ -274,7 +283,7 @@ void TriangleCount::OutputMessage() {
 
 #if (VEND_LEVEL >= 2 || VEND_LEVEL==-1)
     std::cout<< " Adj Filtered times : "<<encode_message_.adj_filtered<<"\n"
-            << "total adj :"<<encode_message_.total_adj<<"\n";
+             << "total adj :"<<encode_message_.total_adj<<"\n";
     output<<"adj filtered"<<','<<encode_message_.adj_filtered<<','<<"total adj"<<','<<encode_message_.total_adj;
 #endif
     output << "\n";

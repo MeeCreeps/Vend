@@ -4,18 +4,17 @@
 void Neo4j::GetNeighbors(uint32_t vertex, std::vector<uint32_t> &neighbors) {
     assert(connection_ != NULL);
     char buf[1024];
-    memset(buf, 0, sizeof(buf));
-    sprintf(buf, "MATCH (a)-[:connect]->(b) WHERE a.id ='%d' RETURN b", vertex);
+
+    sprintf(buf, "MATCH (a:person)-[:connect]->(b) WHERE a.id ='%d' RETURN  b.id", vertex);
     neo4j_result_stream_t *results = neo4j_run(connection_, buf, neo4j_null);
     neo4j_result_t *result = neo4j_fetch_next(results);
     while(result!=NULL){
         neo4j_value_t value = neo4j_result_field(result, 0);
         char buf[128];
         neighbors.push_back(std::stoi(neo4j_tostring(value, buf, sizeof(buf))));
-        printf("%s\n", neo4j_tostring(value, buf, sizeof(buf)));
         result= neo4j_fetch_next(results);
     }
-    neo4j_release(result);
+
     neo4j_close_results(results);
 }
 
