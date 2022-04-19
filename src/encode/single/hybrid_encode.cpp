@@ -36,14 +36,11 @@ PairType HybridEncode::NonNeighborTest(uint32_t vertex1, uint32_t vertex2) {
 
     auto &encode = encode_bitset_[vertex1];
     if (IsDecodable(vertex1)) {
-        for (uint32_t index = 1; index <= PER_ENCODE_BIT_SIZE - v_bits_size_ + 1; index += v_bits_size_) {
-            if (encode.BlockGet(index, v_bits_size_) == vertex2)
-                return PairType::Neighbor;
-        }
-        return PairType::NonNeighbor;
+        return encode.BlockFind(1,v_bits_size_,MAX_K_CORE_SIZE,vertex2);
     } else {
         uint32_t min = 0, max = vertex_id_upper_, block_num = encode.GetBlockNum();
         BlockType type = GetBlockModel(vertex1);
+        uint32_t hash_begin=block_num * v_bits_size_ + 3 + log_k_;
         // not left most
         if (type != BlockType::LeftMost) {
             min = block_num == 0 ? 0 : encode.BlockGet(3 + log_k_, v_bits_size_);
@@ -53,23 +50,16 @@ PairType HybridEncode::NonNeighborTest(uint32_t vertex1, uint32_t vertex2) {
             max = block_num == 0 ? 0 : encode.BlockGet(3 + log_k_ + (block_num - 1) * v_bits_size_, v_bits_size_);
         }
 
-        // return true  if hash val = 0
-        if (vertex2 == min || vertex2 == max)
-            return PairType::Neighbor;
+
         // search hash
         if (vertex2 < min || vertex2 > max) {
-            if (encode.IsOne(Hash(vertex2, block_num * v_bits_size_ + 3 + log_k_)))
+            if (hash_begin==PER_ENCODE_BIT_SIZE||encode.IsOne(Hash(vertex2, hash_begin)))
                 return PairType::Uncertain;
             else
                 return PairType::NonNeighbor;
         } else {
-            // scan block
-            for (uint32_t index = 3 + log_k_;
-                 index < 3 + log_k_ + block_num * v_bits_size_; index += v_bits_size_) {
-                if (encode.BlockGet(index, v_bits_size_) == vertex2)
-                    return PairType::Neighbor;
-            }
-            return PairType::NonNeighbor;
+
+            return encode.BlockFind(BLOCK_BEGIN_INDEX, v_bits_size_, block_num, vertex2);
         }
     }
 }
@@ -106,6 +96,7 @@ void HybridEncode::Decode(uint32_t vertex, DecodeInfo &decode_info) {
 
 
 void HybridEncode::EncodeVertex(uint32_t vertex_id, std::vector<uint32_t> &neighbors) {
+    std::sort(neighbors.begin(), neighbors.end());
     auto &encode = encode_bitset_[vertex_id];
     uint32_t score;
     encode.Clear();
@@ -133,7 +124,7 @@ void HybridEncode::InsertPair(uint32_t vertex1, uint32_t vertex2) {
     }
     std::vector<uint32_t> neighbor2, neighbor1 = GetAllNeighbors(vertex1);
     neighbor1.push_back(vertex2);
-    std::sort(neighbor1.begin(), neighbor1.end());
+
     switch (encode_type1) {
         case EncodeType::UnFull:
             EncodeVertex(vertex1, neighbor1);
@@ -143,6 +134,7 @@ void HybridEncode::InsertPair(uint32_t vertex1, uint32_t vertex2) {
                 neighbor2 = GetAllNeighbors(vertex2);
                 neighbor2.push_back(vertex1);
                 std::sort(neighbor2.begin(), neighbor2.end());
+                std::sort(neighbor1.begin(), neighbor1.end());
                 RestructChoose(vertex1, neighbor1, vertex2, neighbor2);
             } else {
 
@@ -152,6 +144,7 @@ void HybridEncode::InsertPair(uint32_t vertex1, uint32_t vertex2) {
         case EncodeType::NonDecodable:
             neighbor2 = GetAllNeighbors(vertex2);
             neighbor2.push_back(vertex1);
+            std::sort(neighbor1.begin(), neighbor1.end());
             std::sort(neighbor2.begin(), neighbor2.end());
             RestructChoose(vertex1, neighbor1, vertex2, neighbor2);
             return;
@@ -192,7 +185,6 @@ HybridEncode::DynamicChoose(uint32_t vertex, std::vector<uint32_t> &neighbors, u
     uint32_t max_score = 0, neighbor_size = neighbors.size();
     BitSet<PER_ENCODE_BIT_SIZE> best_bitset;
     assert(neighbor_size > MAX_INTEGER_SIZE);
-//    std::sort(neighbors.begin(), neighbors.end());
     HashCount *hash_count = new HashCount();
     // full hash
     hash_count->ReConstruct(neighbors, 0);

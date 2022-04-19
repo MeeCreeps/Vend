@@ -19,6 +19,7 @@
 #include "execution/query_execution.h"
 #include "execution/random_query_execution.h"
 #include "execution/random_score_execution.h"
+#include "execution/full_score_execution.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -44,13 +45,14 @@ int main(int argc, char **argv) {
                          VendType::BloomFilterInt, VendType::BloomFilterBit};
     int plan_nums = 6;
     //build encode
-    std::cout << "start building \n";
-    for (int i =0; i <1; ++i) {
-        BuildExecution *build_execution = new BuildExecution(data_path, db_path, vend_prefix, VendType::Hybrid);
-        build_execution->Execute();
-        delete build_execution;
-    }
-    std::cout << "build finished \n";
+//    std::cout << "start building \n";
+//    for (int i =0; i <plan_nums; ++i) {
+//        BuildExecution *build_execution = new BuildExecution(data_path, db_path, vend_prefix,types[i]);
+//        build_execution->Execute();
+//        std::cout<<" graph "<<VEND_STRING[types[i]]<<" build finished "<<std::endl;
+//        delete build_execution;
+//    }
+//    std::cout << "build finished \n";
 
 //    std::cout << "start deleting \n";
 //    for (int i = 1; i < plan_nums; ++i) {
@@ -90,8 +92,13 @@ int main(int argc, char **argv) {
 //        delete random_query_execution;
 //    }
 //    std::cout << "query time experiment finished \n";
-//
-//
+////
+//    // random score
+//    std::cout << "start getting random scores\n";
+//    RandomScoreExecution *random_score_execution = new RandomScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
+//    random_score_execution->Execute();
+//    delete random_score_execution;
+//    std::cout << "score experiment finished \n";
 //
 //    // query experiment and return score
 //    std::cout << "start getting scores\n";
@@ -99,14 +106,12 @@ int main(int argc, char **argv) {
 //    score_execution->Execute();
 //    delete score_execution;
 //    std::cout << "score experiment finished \n";
-//
-//
-//    // random score
-//    std::cout << "start getting random scores\n";
-//    RandomScoreExecution *random_score_execution = new RandomScoreExecution(score_pair_path,vend_prefix, output_path,db_path);
-//    random_score_execution->Execute();
-//    delete random_score_execution;
-//    std::cout << "score experiment finished \n";
+    // query experiment and return score
+    std::cout << "start getting scores\n";
+    FullScoreExecution *full_execution = new FullScoreExecution(vend_prefix, output_path);
+    full_execution->Execute();
+    delete full_execution;
+    std::cout << "score experiment finished \n";
 }
 
 #endif //MAIN
