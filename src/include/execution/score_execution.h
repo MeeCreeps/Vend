@@ -22,6 +22,7 @@
 #include <unordered_set>
 #include "omp.h"
 #include "common/config.h"
+
 static constexpr uint32_t VERTETX_TEST_SIZE1 = 100000;
 static constexpr uint32_t VERTETX_TEST_SIZE2 = 10000;
 static constexpr uint32_t PAIR_SIZE = VERTETX_TEST_SIZE1 * VERTETX_TEST_SIZE2;
@@ -38,19 +39,15 @@ public:
             : PairList(pair_path, output_path, SCORE_PAIR_SIZE) {
 
         vend_paths_[0] = VendFactory::GetVendPath(vend_prefix, Vends[0]);
-        graphs_[0] = new Graph(db_path, vend_paths_[0], Vends[0]);
+        graphs_[0] = std::make_shared<Graph>(db_path, vend_paths_[0], Vends[0]);
         graphs_[0]->Init();
         for (int i = 1; i < PLAN_NUMS; ++i) {
             vend_paths_[i] = VendFactory::GetVendPath(vend_prefix, Vends[i]);
-            graphs_[i] = new Graph("", vend_paths_[i], Vends[i]);
+            graphs_[i] = std::make_shared<Graph>("", vend_paths_[i], Vends[i]);
             graphs_[i]->Init();
         }
     };
 
-    ~ScoreExecution() {
-        for (int i = 0; i < PLAN_NUMS; ++i)
-            delete graphs_[i];
-    }
 
     void Execute() override;
 
@@ -60,7 +57,7 @@ public:
                       std::unordered_set<uint32_t> *vertex_list2);
 
 private:
-    Graph *graphs_[PLAN_NUMS];
+    std::shared_ptr<Graph> graphs_[PLAN_NUMS];
     std::string vend_paths_[PLAN_NUMS];
 
 };

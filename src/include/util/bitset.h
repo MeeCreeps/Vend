@@ -17,6 +17,7 @@
 #include <set>
 #include "assert.h"
 #include <cstring>
+#include "common/config.h"
 // round up to x/32
 #define ROUND_UP(x) x%32==0 ?x/32:x/32+1
 #define DIVIDE32(x) x>>5
@@ -36,7 +37,7 @@ static constexpr uint32_t ONE_BITS_ARRAY[33] = {
 };
 
 static constexpr uint32_t ZERO_BITS_ARRAY[33] = {
-        0xffffffff, 0xfffffffe, 0xfffffffc, 0xffffff8, 0xffffff0,
+        0xffffffff, 0xfffffffe, 0xfffffffc, 0xfffffff8, 0xfffffff0,
         0xffffffe0, 0xffffffc0, 0xffffff80, 0xffffff00,
         0xfffffe00, 0xfffffc00, 0xfffff800, 0xfffff000,
         0xffffe000, 0xffffc000, 0xffff8000, 0xffff0000,
@@ -56,10 +57,40 @@ static constexpr uint32_t ONE_BIT[32] = {
         0x00000008, 0x00000004, 0x00000002, 0x00000001,
 };
 
-template<size_t N>
+// the block num offset  of hybrid encode
+static constexpr uint32_t BLOCK_NUM_ARRAY[10] = {
+        0, 0x10000000, 0x18000000, 0x1c000000, 0x1e000000,
+        0x1f000000, 0x1f800000, 0x1fc0000, 0x1fe00000, 0x1ff00000
+};
+
+// avoid operation of /32
+static uint32_t DIV_32_ARRAY[PER_ENCODE_BIT_SIZE];
+
+static uint32_t MOD_32_ARRAY[PER_ENCODE_BIT_SIZE];
+
+// input begin and block size , get the last position
+// dimension 1 : begin   dimension 2 : block size
+static uint32_t TAIL_POS[PER_ENCODE_BIT_SIZE][33];
+
+static uint32_t TAIL_OFFSET[PER_ENCODE_BIT_SIZE][33];
+
+static void InitVariable() {
+    for (int i = 0; i < PER_ENCODE_BIT_SIZE; ++i) {
+        DIV_32_ARRAY[i] = DIVIDE32(i);
+        MOD_32_ARRAY[i] = MOD32(i);
+        TAIL_POS[i][LOG_K] = i + LOG_K - 1;
+        TAIL_OFFSET[i][LOG_K] = 31 - MOD32(TAIL_POS[i][LOG_K]);
+        TAIL_POS[i][VERTEX_BIT_SIZE] = i + VERTEX_BIT_SIZE - 1;
+        TAIL_OFFSET[i][VERTEX_BIT_SIZE] = 31 - MOD32(TAIL_POS[i][VERTEX_BIT_SIZE]);
+    }
+}
+
+
+template<uint64_t N>
 class BitSet {
 public:
-    BitSet():size_(ROUND_UP(N)) {
+
+    BitSet() : size_(ROUND_UP(N)) {
         Clear();
     }
 
@@ -67,23 +98,28 @@ public:
  *  set bit on  position pos to 1
  *  @return   false if pos out of range
  * */
-    bool SetOne(size_t pos) {
-        bits_[pos / 32] |= (uint32_t) 1 << (31 - pos % 32);
+    bool SetOne(uint32_t pos) {
+        bits_[DIVIDE32(pos)] |= (uint32_t) 1 << (31 - MOD32(pos));
+    };
+    bool SetOne(uint64_t pos) {
+        bits_[DIVIDE32(pos)] |= (uint32_t) 1 << (31 - MOD32(pos));
     };
 
     // reset pos as 0
-    bool SetZero(size_t pos) {
-        bits_[pos / 32] &= ~(uint32_t) 0 ^ (1 << (31 - pos % 32));
+    bool SetZero(uint32_t pos) {
+        bits_[DIVIDE32(pos)] &= ~(uint32_t) 0 ^ (1 << (31 - MOD32(pos)));
     };
 
     /**
      *  test whether bit on position pos is equal 1
      *  @return  true: equal 1   false
      * */
-    bool IsOne(size_t pos) {
-        return bits_[pos/32] & ONE_BIT[pos % 32];
+    inline bool IsOne(uint32_t pos) {
+        return bits_[pos>>5] & ONE_BIT[pos-((pos>>5)<<5)];
     };
-
+    inline bool IsOne(uint64_t pos) {
+        return bits_[pos>>5] & ONE_BIT[pos-((pos>>5)<<5)];
+    };
     bool Pos_One_Is_One() {
         return bits_[0] >> 31;
     }
@@ -91,6 +127,10 @@ public:
     // reset all as 0
     bool Clear() {
         memset(bits_, 0, size_ * sizeof(uint32_t));
+    };
+
+    inline uint16_t GetBlockNum() {
+        return (bits_[0] & BLOCK_NUM_ARRAY[LOG_K]) >> (29 - LOG_K);
     };
 
     /**
@@ -102,8 +142,8 @@ public:
      *  bitset before: 00000 00000 00000 ...
      *         after:  00000 01100 00000 ...
      * */
-    void BlockSet(size_t begin, size_t block_size, uint32_t value) {
-        uint32_t i = begin / 32;
+    void BlockSet(uint32_t begin, uint32_t block_size, uint32_t value) {
+        uint32_t i = DIVIDE32(begin);
         uint32_t left = 31 - (begin + block_size - 1) % 32;
         uint32_t j = (begin + block_size - 1) / 32;
         if (i != j) {
@@ -119,7 +159,7 @@ public:
     };
 
     void BlockSet(const std::vector<uint32_t> &encode) {
-        assert(encode.size() <= size_);
+        assert(encode.size()== size_);
         for (int i = 0; i < size_; ++i)
             bits_[i] = encode[i];
     };
@@ -137,14 +177,14 @@ public:
      *         block_size: how many bits that one takes (equals ceil(log|V|) )
      *         values:  value array
      * */
-    void BlockSet(size_t begin, size_t block_size, const std::vector<uint32_t> &values) {
-        size_t temp = begin;
+    void BlockSet(uint32_t begin, uint32_t block_size, const std::vector<uint32_t> &values) {
+        uint32_t temp = begin;
         for (auto iter = values.begin(); iter != values.end(); ++iter, temp += block_size) {
             BlockSet(temp, block_size, *iter);
         }
     };
 
-    void BlockSet(size_t begin, size_t block_size, const std::set<uint32_t> &values);
+    void BlockSet(uint32_t begin, uint32_t block_size, const std::set<uint32_t> &values);
 
     /**
      *  convert bits to integer (uint32)
@@ -154,34 +194,31 @@ public:
      *         bitset: 00000 01010 ...
      *         return: 10
      * */
-    uint32_t BlockGet(size_t begin, size_t block_size) {
+    uint32_t BlockGet(uint32_t begin, uint32_t block_size) {
         // block_size <= 32
         size_t i = DIVIDE32(begin);
-        uint32_t temp =begin + block_size - 1;
+        uint32_t temp = begin + block_size - 1;
         size_t j = DIVIDE32(temp);
         if (i == j) {
-            size_t offset = ((j+1)<<5)-temp-1;
-            return (bits_[i] << offset) & ONE_BITS_ARRAY[block_size];
+            return (bits_[i] >> (((j + 1) << 5) - temp - 1)) & ONE_BITS_ARRAY[block_size];
             //return (bits_[i] << (begin - (i<<5))) >> (32 - block_size);
         } else {
-            size_t offset = ((j+1)<<5)-temp-1;
-            return ((bits_[i] << (begin - (i<<5))) >> (32 - block_size)) | (bits_[j] >> offset);
+            return ((bits_[i] << (begin - (i << 5))) >> (32 - block_size)) | (bits_[j] >> (((j + 1) << 5) - temp - 1));
         }
-
     };
 
     /**
      *  convert all integers  to vector
      *
      * */
-    void BlockGet(size_t begin, size_t block_size, std::vector<uint32_t> *intVec) {
+    void BlockGet(uint32_t begin, uint32_t block_size, std::vector<uint32_t> *intVec) {
         while (begin + block_size - 1 < size_ * 32) {
             intVec->push_back(BlockGet(begin, block_size));
             begin += block_size;
         }
     };
 
-    void BlockGet(size_t begin, size_t block_size, std::set<uint32_t> *intVec) {
+    void BlockGet(uint32_t begin, uint32_t block_size, std::set<uint32_t> *intVec) {
         while (begin + block_size - 1 < size_ * 32) {
             intVec->insert(BlockGet(begin, block_size));
             begin += block_size;
@@ -192,11 +229,63 @@ public:
      *  return how many bits are set range from begin to begin+block_size
      *
      * */
-    uint32_t BlockCount(size_t begin, size_t block_size);
+    uint32_t BlockCount(uint32_t begin, uint32_t block_size);
 
-private:
+
+    /**
+     *  Compare value with each block integer
+     *  @block_num: the number of block integers
+     * */
+    PairType BlockFind(uint32_t begin, uint32_t block_size, uint32_t block_num, uint32_t value) {
+        uint32_t head_pos = begin, head_idx, tail_idx, block_val;
+        uint32_t tail_pos = begin + block_size - 1;
+        for (uint32_t i = 0; i < block_num; ++i, head_pos = tail_pos + 1, tail_pos = head_pos + block_size - 1) {
+            head_idx = DIVIDE32(head_pos);
+            tail_idx = DIVIDE32(tail_pos);
+            if (head_idx == tail_idx) {
+                block_val = (bits_[head_idx] >> (((tail_idx + 1) << 5) - tail_pos - 1)) & ONE_BITS_ARRAY[block_size];
+                if (value < block_val)
+                    break;
+                if (value == block_val)
+                    return PairType::Neighbor;
+            } else {
+                block_val = ((bits_[head_idx] << (head_pos - (head_idx << 5))) >> (32 - block_size)) |
+                            (bits_[tail_idx] >> (((tail_idx + 1) << 5) - tail_pos - 1));
+                //if (!(value ^ (((bits_[i] << (begin - (head_idx<<5))) >> (32 - block_size)) | (bits_[tail_idx] >> (((tail_idx+1)<<5)-tail_pos-1)))))
+                //    return PairType::Neighbor;
+                if (value < block_val)
+                    break;
+                if (value == block_val)
+                    return PairType::Neighbor;
+            }
+        }
+        return PairType::NonNeighbor;
+    };
+
+    /**
+     *   functions below are designed for hybrid encode
+     * */
+
+    /**
+     *  return ture if the first position is set to 1
+     * */
+    inline bool GetFirstBit() {
+        return bits_[0] >> 31;
+    }
+
+    inline bool GetSecondBit(){
+        return bits_[0] & 0x40000000;
+    }
+
+    inline bool GetThridBit(){
+        return bits_[0] & 0x20000000;
+    }
+
+
+    friend class HybridEncode;
+protected:
     uint32_t bits_[ROUND_UP(N)];
-    int size_;
+    uint64_t size_;
 };
 
 

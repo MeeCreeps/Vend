@@ -15,11 +15,12 @@
 using namespace ROCKSDB_NAMESPACE;
 
 RocksDb::RocksDb(const std::string &db_path) : DbEngine(db_path) {
+    rocksdb_ = nullptr;
+    iterator_=nullptr;    
     open_options_.IncreaseParallelism();
     // open_options_.OptimizeLevelStyleCompaction();
     // create the DB if it's not already present
     open_options_.create_if_missing = true;
-
     read_options_ = ROCKSDB_NAMESPACE::ReadOptions();
     read_options_.fill_cache = false;
 
@@ -45,7 +46,7 @@ bool RocksDb::Open() {
     return s.ok();
 }
 
-bool RocksDb::Get(const uint32_t &key, uint32_t *value) {
+bool RocksDb::Get(uint32_t key, uint32_t *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -54,7 +55,7 @@ bool RocksDb::Get(const uint32_t &key, uint32_t *value) {
     return true;
 }
 
-bool RocksDb::Get(const uint32_t &key, std::vector<uint32_t> *value) {
+bool RocksDb::Get(uint32_t key, std::vector<uint32_t> *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -63,7 +64,7 @@ bool RocksDb::Get(const uint32_t &key, std::vector<uint32_t> *value) {
     return true;
 }
 
-bool RocksDb::Get(const uint32_t &key, std::set<uint32_t> *value) {
+bool RocksDb::Get(uint32_t key, std::set<uint32_t> *value) {
     std::string data;
     Status s = rocksdb_->Get(read_options_, std::to_string(key), &data);
     if (s.IsNotFound())
@@ -73,30 +74,20 @@ bool RocksDb::Get(const uint32_t &key, std::set<uint32_t> *value) {
 }
 
 void RocksDb::StringToValue(const std::string &data, std::vector<uint32_t> *value) {
-    uint32_t *neighbor_array = nullptr;
     size_t len = data.length();
-    neighbor_array = (uint32_t *) (malloc(len));
-    memset(neighbor_array, 0, len);
-    memcpy(neighbor_array, data.c_str(), len);
-    value->assign(neighbor_array, neighbor_array + len / 4);
-    delete neighbor_array;
+    value->assign((uint32_t *)data.c_str(), (uint32_t *)data.c_str() + len / 4);
 }
 
 void RocksDb::StringToValue(const std::string &data, std::set<uint32_t> *value) {
-    uint32_t *neighbor_array = nullptr;
     size_t len = data.length();
-    neighbor_array = (uint32_t *) (malloc(len));
-    memset(neighbor_array, 0, len);
-    memcpy(neighbor_array, data.c_str(), len);
-    value->insert(neighbor_array, neighbor_array + len / 4);
-    delete neighbor_array;
+    value->insert((uint32_t *)data.c_str(), (uint32_t *)data.c_str() + len / 4);
 }
 
 void RocksDb::StringToValue(const std::string &data, uint32_t *value) {
     *value = std::stoul(data);
 }
 
-bool RocksDb::Put(const uint32_t &key, const uint32_t &value) {
+bool RocksDb::Put(uint32_t key, uint32_t value) {
     size_t len;
     char *data = ValueToString(value, &len);
     Status s = rocksdb_->Put(write_options_, std::to_string(key), Slice(data, len));
@@ -104,7 +95,7 @@ bool RocksDb::Put(const uint32_t &key, const uint32_t &value) {
     return s.ok();
 }
 
-bool RocksDb::Put(const uint32_t &key, const std::vector<uint32_t> &value) {
+bool RocksDb::Put(uint32_t key, const std::vector<uint32_t> &value) {
     if (value.empty())
         return true;
     size_t len;
@@ -127,7 +118,7 @@ char *RocksDb::ValueToString(const std::vector<uint32_t> &value, size_t *len) {
     return data;
 }
 
-char *RocksDb::ValueToString(const uint32_t &value, size_t *len) {
+char *RocksDb::ValueToString(uint32_t value, size_t *len) {
     char *data = nullptr;
     *len = sizeof(uint32_t);
     data = (char *) (malloc(*len));

@@ -27,6 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+
 /**
  *  encode format (bit)
  *  ------------------------------------------------------------------------------------------------------------------
@@ -44,33 +45,72 @@
 
 
 
+static uint32_t BLOCK_BEGIN_INDEX = 3 + LOG_K;
 
 class HybridEncode : public EncodeBitSet {
 public:
 
 
     HybridEncode() : log_k_(LOG_K), v_bits_size_(VERTEX_BIT_SIZE), max_integer_size_(MAX_INTEGER_SIZE),
-                     EncodeBitSet() {}
+                     EncodeBitSet() {
+        InitVariable();
+    }
 
+    PairType
+    NEpairTest(uint32_t vertex1, const DecodeInfo &decode_info1, uint32_t vertex2, const DecodeInfo &decode_info2) {
 
+        if (decode_info1.decodable && !decode_info2.decodable)
+            return NonNeighborTest(vertex1, decode_info1, vertex2);
+        else if (!decode_info1.decodable && decode_info2.decodable)
+            return NonNeighborTest(vertex2, decode_info2, vertex1);
+        else if(decode_info1.decodable && decode_info2.decodable){
+            PairType type1 = NonNeighborTest(vertex1, decode_info1, vertex2);
+            //Neighbor=1,NonNeighbor=2,Uncertain=4
+            //type1==PairType::Neighbor
+            if(type1&0x01)
+                return PairType::Neighbor;
+            else
+                return NonNeighborTest(vertex2, decode_info2, vertex1);
+        }else{
+            PairType type1 = NonNeighborTest(vertex1, decode_info1, vertex2);
+            //type1!=PairType::Uncertain
+            if(type1&0x03)
+                return type1;
+            else
+                return NonNeighborTest(vertex2, decode_info2, vertex1);
+        }
+    }
 
     /** F()
      *  @return true, if both hybrid functions is true
      * */
     PairType NEpairTest(uint32_t vertex1, uint32_t vertex2) override {
-
-        bool encode_type1=IsDecodable(vertex1),encode_type2=IsDecodable(vertex2);
-        if(!encode_type1 && encode_type2){
-            return NonNeighborTest(vertex2, vertex1);
-        }else if (encode_type1 &&!encode_type2){
-            return NonNeighborTest(vertex1, vertex2);
-        }else{
-            return std::min(NonNeighborTest(vertex1, vertex2),NonNeighborTest(vertex2, vertex1));
+        bool encode_type1 = IsDecodable(vertex1), encode_type2 = IsDecodable(vertex2);
+        if (encode_type1 < encode_type2) {
+            std::swap(encode_type1, encode_type2);
+            std::swap(vertex1, vertex2);
+        }
+        PairType type1 = NonNeighborTest(vertex1, vertex2);
+        if (encode_type1 && !encode_type2) {
+            return type1;
+        } else {
+            // both are Partical Encode or decodable
+            PairType type2 = NonNeighborTest(vertex2, vertex1);
+            return std::min(type1, type2);
         }
     };
 
+    /**
+     *  find vertex2 in the encode of vertex1
+     * */
+    PairType NonNeighborTest(uint32_t vertex1, const DecodeInfo &decode_info1, uint32_t vertex2);
+
     // f()
     PairType NonNeighborTest(uint32_t vertex1, uint32_t vertex2) override;
+
+
+    inline void Decode(uint32_t vertex, DecodeInfo &decode_info);
+
 
     /**
      *  dynamic encode
@@ -134,8 +174,9 @@ public:
      *  hash function for encode
      * @return : bit position to set
      * */
-    inline uint32_t Hash(uint32_t vertex_id, uint32_t hash_begin) {
-        return hash_begin == PER_ENCODE_BIT_SIZE ? 0 : vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
+    uint32_t Hash(uint32_t vertex_id, uint32_t hash_begin) {
+       return hash_begin == PER_ENCODE_BIT_SIZE ? 0 : vertex_id % (PER_ENCODE_BIT_SIZE - hash_begin) + hash_begin;
+
     };
 
 
@@ -146,7 +187,7 @@ public:
 
 
     inline bool IsDecodable(uint32_t vertex) {
-        return encode_bitset_[vertex].IsOne(0);
+        return encode_bitset_[vertex].IsOne((uint32_t)0);
     }
 
     /**
@@ -154,13 +195,22 @@ public:
      * */
     std::vector<uint32_t> GetBlockInteger(uint32_t vertex);
 
-    BlockType GetBlockModel(uint32_t vertex) {
-        if (encode_bitset_[vertex].IsOne(1))
+    inline BlockType GetBlockModel(uint32_t vertex) {
+        if (encode_bitset_[vertex].IsOne((uint32_t)1))
             return BlockType::RightMost;
-        if (!encode_bitset_[vertex].IsOne(2))
+        if (!encode_bitset_[vertex].IsOne((uint32_t)2))
             return BlockType::LeftMost;
         return BlockType::Middle;
     };
+
+    inline BlockType GetBlockModel(BitSet<PER_ENCODE_BIT_SIZE> &encode) {
+        if (encode.GetSecondBit())
+            return BlockType::RightMost;
+        if (encode.GetThridBit())
+            return BlockType::Middle;
+        return BlockType::LeftMost;
+    };
+
 
     void SetBlockModel(BitSet<PER_ENCODE_BIT_SIZE> *bitset, BlockType type) {
         switch (type) {
@@ -179,12 +229,10 @@ public:
 
 
     inline bool IsFull(uint32_t vertex) {
-        assert(encode_bitset_[vertex].IsOne(0));
         return encode_bitset_[vertex].BlockGet(PER_ENCODE_BIT_SIZE - v_bits_size_, v_bits_size_) != 0;
     }
 
     inline bool IsFull(uint32_t vertex, uint32_t *index_not_full) {
-        assert(encode_bitset_[vertex].IsOne(0));
         for (uint32_t index = 1;
              index <= PER_ENCODE_BIT_SIZE - v_bits_size_ + 1; index += v_bits_size_) {
             if (encode_bitset_[vertex].BlockGet(index, v_bits_size_) == 0)
@@ -207,7 +255,7 @@ public:
     }
 
     std::vector<uint32_t> GetAllNeighbors(uint32_t vertex) {
-        if (encode_bitset_[vertex].IsOne(0))
+        if (encode_bitset_[vertex].IsOne((uint32_t)0))
             return GetBlockInteger(vertex);
         return DbQuery(vertex);
     }
@@ -218,12 +266,17 @@ public:
 
     uint32_t GetIntSize() { return max_integer_size_; }
 
+
+
+
+    friend class TriangleCount;
+    friend class Vend;
 protected:
+
 
     uint32_t v_bits_size_;  // how many bits one vertex takes
     uint32_t log_k_;    // how many bits range size takes
     uint32_t max_integer_size_; // max integer number that fully encoding contains
-
 
 };
 

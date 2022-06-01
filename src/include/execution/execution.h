@@ -14,7 +14,7 @@
 #include <string>
 #include <random>
 #include "graph/graph.h"
-
+#include "memory"
 
 class Execution {
 
@@ -25,14 +25,10 @@ public:
 
     virtual void Execute() = 0;
 
-    ~Execution(){
-        delete graph_;
-        graph_= nullptr;
-    }
 protected:
     std::string db_path_;
     std::string vend_path_;
-    Graph *graph_= nullptr;
+    std::shared_ptr<Graph> graph_;
     VendType vend_type_;
 
 

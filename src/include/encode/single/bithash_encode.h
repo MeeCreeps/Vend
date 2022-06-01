@@ -17,7 +17,7 @@ public:
         return NonNeighborTest(vertex2, vertex1);
     }
 
-    PairType NonNeighborTest(const uint32_t &vertex1, const uint32_t &vertex2) override {
+    PairType NonNeighborTest(uint32_t vertex1, uint32_t vertex2) override {
         if(encode_bitset_[vertex1].IsOne(Hash(vertex2)))
             return PairType::Uncertain;
         else
@@ -25,7 +25,7 @@ public:
 
     }
 
-    void EncodeVertex(const uint32_t &vertex_id, std::vector<uint32_t> &neighbors) override {
+    void EncodeVertex(uint32_t vertex_id, std::vector<uint32_t> &neighbors) override {
         auto &encode = encode_bitset_[vertex_id];
         encode.Clear();
         for (auto &v:neighbors) {
@@ -55,7 +55,7 @@ public:
 private:
     uint32_t hash_size_;
 
-    inline uint32_t Hash(const uint32_t &vertex) {
+    inline uint32_t Hash(uint32_t vertex) {
         return vertex % hash_size_;
     };
 };

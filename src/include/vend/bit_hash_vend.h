@@ -16,18 +16,18 @@
 
 class BitHashVend : public Vend {
 public:
-    BitHashVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db)
+    BitHashVend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path,std::shared_ptr<DbEngine> &db)
             : Vend(adj_list, encode_path,db) {
-        encodes_ = new BitHashEncode();
+        encodes_ = std::make_shared<BitHashEncode>();
         encodes_->SetDb(db);
     }
 
     void BuildEncoding() override {
-        assert(adjacency_list_.size() == VERTEX_SIZE + 1);
+        assert(adjacency_list_->size() == VERTEX_SIZE + 1);
         assert(encodes_ != nullptr);
         uint32_t vertex1 = 1;
-        for (uint32_t vertex1 = 1; vertex1 < adjacency_list_.size(); ++vertex1) {
-            std::vector<uint32_t> neighbors(adjacency_list_[vertex1].begin(),adjacency_list_[vertex1].end());
+        for (uint32_t vertex1 = 1; vertex1 < adjacency_list_->size(); ++vertex1) {
+            std::vector<uint32_t> neighbors(adjacency_list_->at(vertex1).begin(),adjacency_list_->at(vertex1).end());
             encodes_->EncodeVertex(vertex1,neighbors);
         }
 

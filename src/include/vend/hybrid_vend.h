@@ -19,14 +19,18 @@
 class HybridVend : public RangeVend {
 
 public:
-    HybridVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : RangeVend(
-            adj_list, encode_path,db) {
+    HybridVend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path,
+               std::shared_ptr<DbEngine> &db)
+            : RangeVend(adj_list, encode_path, db) {
         Init(db);
     }
-    void Init(DbEngine *db){
-        encodes_ = new HybridEncode();
+
+    void Init(std::shared_ptr<DbEngine> &db) {
+        encodes_= nullptr;
+        encodes_ = std::make_shared<HybridEncode>();
         encodes_->SetDb(db);
     }
+
 
 };
 

@@ -37,22 +37,29 @@ public:
      *
      *
      * */
-    static Vend *
-    GetEncode(VendType vend_type, const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,
-              DbEngine *db) {
+    static void
+    GetEncode(VendType vend_type, std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list,
+              const std::string &encode_path,
+              std::shared_ptr<DbEngine> &db,std::shared_ptr<Vend> &vend) {
+
         switch (vend_type) {
             case VendType::BloomFilterInt:
-                return new BFilterIntVend(adj_list, encode_path, db);
+                vend=std::make_shared<BFilterIntVend>(adj_list, encode_path, db);
+                break;
             case VendType::BloomFilterBit:
-                return new BFilterBitVend(adj_list, encode_path, db);
+                vend=std::make_shared<BFilterBitVend>(adj_list, encode_path, db);
+                break;
             case VendType::HashBit:
-                return new BitHashVend(adj_list, encode_path, db);
+                vend=std::make_shared<BitHashVend>(adj_list, encode_path, db);
+                break;
             case VendType::Range:
-                return new RangeVend(adj_list, encode_path, db);
+                vend=std::make_shared<RangeVend>(adj_list, encode_path, db);
+                break;
             case VendType::Hybrid:
-                return new HybridVend(adj_list, encode_path, db);
+                vend=std::make_shared<HybridVend>(adj_list, encode_path, db);
+                break;
             case VendType::NoVend:
-                return nullptr;
+                vend=nullptr;
         }
 
     };
@@ -66,6 +73,7 @@ public:
                 return vend_prefix + VEND_STRING[vend_type] + ".txt";
         }
     }
+
     static std::string GetOutputPath(std::string output_prefix, VendType vend_type) {
         std::string vend_path;
         switch (vend_type) {

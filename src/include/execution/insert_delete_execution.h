@@ -25,15 +25,15 @@ public:
         graph_->Init();
         Init();
 
-        Timer *timer = new Timer();
+        std::unique_ptr<Timer> timer= std::make_unique<Timer>();
         int batch = 0;
 
         for (auto &pair:pair_list_) {
             ++batch;
             if (graph_->GetVendType() == VendType::BloomFilterBit && batch >= 10)
                 break;
-            graph_->RemoveEdge(pair.first, pair.second, timer);
-            graph_->AddEdge(pair.first, pair.second, timer);
+            graph_->RemoveEdge(pair.first, pair.second, timer.get());
+            graph_->AddEdge(pair.first, pair.second, timer.get());
         }
 
         std::ofstream output(output_path_, std::ios::out|std::ios::app);

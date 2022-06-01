@@ -16,48 +16,49 @@
 
 void Graph::Init() {
     // load or build encoding
+    adjacency_list_ = std::make_shared<std::vector<std::vector<uint32_t >>>();
     if (!db_path_.empty())
-        graph_db_ = new RocksDb(db_path_);
+        graph_db_ = std::make_shared<RocksDb>(db_path_);
     if (vend_type_ != VendType::NoVend) {
         if (access(vend_path_.c_str(), F_OK) != 0 && !data_path_.empty()) {
             // encode file doesn't exists ,load data
             LoadData();
-            vend = VendFactory::GetEncode(vend_type_, adjacency_list, vend_path_, graph_db_);
+            VendFactory::GetEncode(vend_type_, adjacency_list_, vend_path_, graph_db_,vend);
             BuildEncode();
 
         } else {
-            vend = VendFactory::GetEncode(vend_type_, adjacency_list, vend_path_, graph_db_);
+            VendFactory::GetEncode(vend_type_, adjacency_list_, vend_path_, graph_db_,vend);
             vend->LoadEncode();
 
         }
     }
-    std::cout << "graph build finished" << std::endl;
+    std::cout << "graph initial finished" << std::endl;
 }
 
 void Graph::LoadData() {
     assert(!data_path_.empty());
     // id begins with 1
-    adjacency_list.resize(VERTEX_SIZE + 1);
+    adjacency_list_->resize(VERTEX_SIZE + 1);
     std::ifstream infile(data_path_);
     std::string line;
+    std::istringstream line_string;
     while (std::getline(infile, line)) {
-        std::vector<uint32_t> temp;
         uint32_t vertex1, vertex2;
-        std::istringstream line_string(line);
+        line_string.str(line);
         line_string >> vertex1 >> vertex2;
         assert(vertex1 != vertex2);
-
-        adjacency_list[vertex1].insert(vertex2);
-        adjacency_list[vertex2].insert(vertex1);
+        adjacency_list_->at(vertex1).push_back(vertex2);
+        adjacency_list_->at(vertex2).push_back(vertex1);
+        line_string.clear();
     }
     infile.close();
 }
 
 void Graph::SaveData() {
-    assert(!adjacency_list.empty());
+    assert(!adjacency_list_->empty());
     assert(graph_db_ != nullptr);
     for (uint32_t id = 1; id <= VERTEX_SIZE; ++id) {
-        std::vector<uint32_t> neighbors(adjacency_list[id].begin(),adjacency_list[id].end());
+        std::vector<uint32_t> neighbors(adjacency_list_->at(id).begin(), adjacency_list_->at(id).end());
         graph_db_->Put(id, neighbors);
     }
 }
@@ -68,22 +69,20 @@ void Graph::BuildEncode() {
 
 }
 
-void Graph::DbInsert(const uint32_t &vertex1, const uint32_t &vertex2) {
+void Graph::DbInsert(uint32_t vertex1, uint32_t vertex2) {
     std::vector<uint32_t> neighbors;
 
     graph_db_->Get(vertex1, &neighbors);
     neighbors.push_back(vertex2);
-    std::sort(neighbors.begin(), neighbors.end());
     graph_db_->Put(vertex1, neighbors);
 
     graph_db_->Get(vertex2, &neighbors);
     neighbors.push_back(vertex1);
-    std::sort(neighbors.begin(), neighbors.end());
     graph_db_->Put(vertex2, neighbors);
 
 }
 
-void Graph::DbDelete(const uint32_t &vertex1, const uint32_t &vertex2) {
+void Graph::DbDelete(uint32_t vertex1, uint32_t vertex2) {
 
     std::vector<uint32_t> neighbors;
 
@@ -107,11 +106,10 @@ void Graph::DbDelete(const uint32_t &vertex1, const uint32_t &vertex2) {
 
 }
 
-bool Graph::DbQuery(const uint32_t &vertex1, const uint32_t &vertex2) {
+bool Graph::DbQuery(uint32_t vertex1, uint32_t vertex2) {
     std::vector<uint32_t> neighbors;
     graph_db_->Get(vertex1, &neighbors);
-    auto iter = std::find(neighbors.begin(), neighbors.end(), vertex2);
-    return iter != neighbors.end();
+    return std::find(neighbors.begin(), neighbors.end(), vertex2)!= neighbors.end();
 }
 
 

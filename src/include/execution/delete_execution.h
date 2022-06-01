@@ -21,7 +21,7 @@ public:
     DeleteExecution(std::string pair_path, std::string vend_prefix, std::string output_path, std::string db_path,
                     VendType vend_type) : PairList(pair_path, output_path, DELETE_LIST_SIZE),
                                           Execution(db_path, vend_prefix, vend_type) {
-        graph_ = new Graph(db_path, vend_path_, vend_type);
+        graph_ = std::make_shared<Graph>(db_path, vend_path_, vend_type);
     }
 
 
@@ -30,17 +30,17 @@ public:
         graph_->Init();
         Init();
         std::cout<<"start delete"<<"\n";
-        Timer *timer = new Timer();
+        std::unique_ptr<Timer> timer= std::make_unique<Timer>();
         int batch = 0;
         for (auto &pair:pair_list_) {
             ++batch;
             if (graph_->GetVendType() == VendType::BloomFilterBit && batch >= 10)
                 break;
-            graph_->RemoveEdge(pair.first, pair.second, timer);
+            graph_->RemoveEdge(pair.first, pair.second, timer.get());
         }
         std::ofstream output(output_path_,std::ios::out|std::ios::app);
-        std::cout << VEND_STRING[vend_type_] << " delete time cost :" << timer->CountTime() << "\n";
-        output << VEND_STRING[vend_type_] << ',' << "delete" << ',' << batch << "," << timer->CountTime() << "\n";
+        std::cout << VEND_STRING[vend_type_] << " delete time cost :" << timer->CountTime()/1000000 << "\n";
+        output << VEND_STRING[vend_type_] << ',' << "delete" << ',' << batch << "," << timer->CountTime()/1000000<< "\n";
         graph_->DestoryDb();
     };
 

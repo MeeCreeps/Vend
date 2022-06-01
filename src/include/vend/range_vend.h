@@ -17,13 +17,13 @@ class RangeVend:public Vend{
 
 
 public:
-    RangeVend(const std::vector<std::set<uint32_t >> &adj_list, const std::string &encode_path,DbEngine *db) : Vend(
+    RangeVend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path,std::shared_ptr<DbEngine> &db) : Vend(
             adj_list,encode_path,db) {
         Init(db);
     }
 
-    virtual void Init(DbEngine *db){
-        encodes_ = new RangeEncode();
+    virtual void Init(std::shared_ptr<DbEngine> &db){
+        encodes_ = std::make_shared<RangeEncode>();
         encodes_->SetDb(db);
     }
     void BuildEncoding() override;

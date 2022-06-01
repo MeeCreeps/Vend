@@ -39,18 +39,18 @@ void BFilterBitEncode::LoadFromDb(std::string file_path) {
     std::ifstream file(file_path);
     uint32_t key;
     std::vector<uint32_t> hash_key;
-    for (uint32_t i = 0; i < hash_size_ / 32; ++i) {
+    for (uint64_t i = 0; i < hash_size_ / 32; ++i) {
         file >> key;
         hash_key.push_back(key);
     }
-    encode_.BlockSet(0, 32, hash_key);
+    encode_.BlockSet(hash_key);
     file.close();
 }
 
 void BFilterBitEncode::EncodePersistent(std::string file_path) {
     std::ofstream file(file_path);
     std::vector<uint32_t> hash_key = encode_.Dump();
-    for (uint32_t i = 0; i < hash_size_ / 32; ++i) {
+    for (uint64_t i = 0; i < hash_size_ / 32; ++i) {
         file << hash_key[i] << "\t";
     }
     file.close();

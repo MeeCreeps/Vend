@@ -19,9 +19,11 @@ public:
     };
 
 
-    EncodeBitSet() : Encode() {}
+    EncodeBitSet() : Encode() {
 
-    virtual PairType NonNeighborTest(const uint32_t &vertex1, const uint32_t &vertex2) {};
+    }
+
+    virtual PairType NonNeighborTest(uint32_t vertex1, uint32_t vertex2) {};
 
     void EncodePersistent(DbEngine *encode_db) override {};
 

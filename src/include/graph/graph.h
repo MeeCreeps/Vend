@@ -23,6 +23,7 @@
 #include "chrono"
 #include "util/timer.h"
 #include <random>
+
 class Graph {
 public:
     Graph(std::string data_path, std::string db_path) : data_path_(data_path), db_path_(db_path) {
@@ -36,13 +37,6 @@ public:
             vend_path), db_path_(db_path), data_path_(data_path), vend_type_(vend_type) {
     };
 
-    ~Graph() {
-        delete graph_db_;
-        graph_db_ = nullptr;
-        delete vend;
-        vend = nullptr;
-
-    }
 
     void Init();
 
@@ -94,6 +88,7 @@ public:
     void BackUpDb();
 
     void DestoryDb();
+
     void DbInsert(uint32_t vertex1, uint32_t vertex2);
 
     void DbDelete(uint32_t vertex1, uint32_t vertex2);
@@ -102,10 +97,6 @@ public:
 
     VendType GetVendType() { return vend_type_; }
 
-    void CloseDb() {
-        if (graph_db_ != nullptr)
-            graph_db_->Close();
-    }
 
 private:
     // csv / txt input file path
@@ -115,10 +106,9 @@ private:
     std::string vend_path_;
     VendType vend_type_;
     uint32_t vertex_size = VERTEX_SIZE;
-    std::vector<std::set<uint32_t >> adjacency_list;
-    DbEngine *graph_db_= nullptr;
-    DbEngine *encode_db_= nullptr;
-    Vend *vend = nullptr;
+    std::shared_ptr<std::vector<std::vector<uint32_t >>> adjacency_list_;
+    std::shared_ptr<DbEngine> graph_db_;
+    std::shared_ptr<Vend> vend;
 };
 
 #endif //VEND_GRAPH_H

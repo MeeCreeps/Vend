@@ -11,7 +11,7 @@
 #include "encode/hash_count.h"
 #include "assert.h"
 
-uint32_t HashCount::RemoveHash(const uint32_t &key) {
+uint32_t HashCount::RemoveHash(uint32_t key) {
     uint32_t hash_val = Hash(key);
     if (hash_array_[hash_val] == 1) {
         for (uint32_t i = hash_val; i < hash_size_; ++i)
@@ -23,7 +23,7 @@ uint32_t HashCount::RemoveHash(const uint32_t &key) {
 }
 
 
-uint32_t HashCount::AddHash(const uint32_t &key) {
+uint32_t HashCount::AddHash(uint32_t key) {
     uint32_t hash_val = Hash(key);
 
     if (hash_array_[hash_val] == 0) {
@@ -33,7 +33,7 @@ uint32_t HashCount::AddHash(const uint32_t &key) {
     hash_array_[hash_val] += 1;
 }
 
-void HashCount::ReConstruct(const std::vector<uint32_t> &neighbors, const uint32_t &block_size, bool reverse) {
+void HashCount::ReConstruct(const std::vector<uint32_t> &neighbors, uint32_t block_size, bool reverse) {
     memset(hash_array_, 0, sizeof(uint32_t) * PER_ENCODE_BIT_SIZE);
     memset(pre_nepair_, 0, sizeof(uint32_t) * PER_ENCODE_BIT_SIZE);
     hash_size_ = PER_ENCODE_BIT_SIZE - PREFIX_BIT_SIZE - block_size * VERTEX_BIT_SIZE;
@@ -54,7 +54,7 @@ void HashCount::ReConstruct(const std::vector<uint32_t> &neighbors, const uint32
 }
 
 uint32_t
-HashCount::GetScore(const std::vector<uint32_t> &neighbors, const uint32_t &block_size, const uint32_t &first_idx,
+HashCount::GetScore(const std::vector<uint32_t> &neighbors, uint32_t block_size, uint32_t first_idx,
                     const BlockType &type) {
     uint32_t score = 0, hash_nepairs = 0, begin_idx = 0, end_idx = 0, first_neighbor = 0, last_neighbor = 0, cut_point1 = 0, cut_point2 = 0, cut_point3 = 0;
 
