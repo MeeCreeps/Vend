@@ -26,19 +26,19 @@
 
 class Graph {
 public:
-    Graph(std::string data_path, std::string db_path) : data_path_(data_path), db_path_(db_path) {
-    }
+    Graph(std::string data_path, std::string db_path) : data_path_(data_path), db_path_(db_path),
+                                                        vertex_size(WriteBatchSize) {}
 
     Graph(std::string db_path, std::string vend_path, VendType vend_type) : vend_path_(
-            vend_path), db_path_(db_path), vend_type_(vend_type) {
+            vend_path), db_path_(db_path), vend_type_(vend_type), vertex_size(WriteBatchSize) {
     };
 
     Graph(std::string data_path, std::string db_path, std::string vend_path, VendType vend_type) : vend_path_(
-            vend_path), db_path_(db_path), data_path_(data_path), vend_type_(vend_type) {
+            vend_path), db_path_(db_path), data_path_(data_path), vend_type_(vend_type), vertex_size(WriteBatchSize) {
     };
 
 
-    void Init();
+    virtual void Init();
 
 
     /**
@@ -50,6 +50,11 @@ public:
      *  save graph into database
      * */
     void SaveData();
+
+    virtual void LoadAndSaveData() {
+        LoadData();
+        SaveData();
+    }
 
     /**
      *  encode graph
@@ -98,7 +103,7 @@ public:
     VendType GetVendType() { return vend_type_; }
 
 
-private:
+protected:
     // csv / txt input file path
     std::string data_path_;
     // databse path
@@ -106,9 +111,11 @@ private:
     std::string vend_path_;
     VendType vend_type_;
     uint32_t vertex_size = VERTEX_SIZE;
-    std::shared_ptr<std::vector<std::vector<uint32_t >>> adjacency_list_;
     std::shared_ptr<DbEngine> graph_db_;
     std::shared_ptr<Vend> vend;
+private:
+    std::shared_ptr<std::vector<std::vector<uint32_t >>> adjacency_list_;
+
 };
 
 #endif //VEND_GRAPH_H

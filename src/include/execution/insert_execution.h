@@ -21,7 +21,10 @@ public:
     InsertExecution(std::string pair_path, std::string vend_prefix, std::string output_path, std::string db_path,
                     VendType vend_type) : PairList(pair_path, output_path, INSERT_LIST_SIZE),
                                           Execution(db_path, vend_prefix, vend_type) {
-        graph_ = std::make_shared<Graph>(db_path, vend_path_, vend_type);
+        if (!IS_LARGE)
+            graph_ = std::make_shared<Graph>(db_path, vend_path_, vend_type);
+        else
+            graph_ = std::make_shared<LargeGraph>(db_path, vend_path_, vend_type);
     }
 
     void Execute() override {

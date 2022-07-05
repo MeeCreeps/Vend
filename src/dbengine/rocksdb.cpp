@@ -135,6 +135,7 @@ void RocksDb::BatchWrite(const std::vector<uint32_t> &keys, const std::vector<st
         write_batch.Put(std::to_string(keys[i]), ValueToString(values[i], nullptr));
 
     }
+
     rocksdb_->Write(write_options_, &write_batch);
 }
 

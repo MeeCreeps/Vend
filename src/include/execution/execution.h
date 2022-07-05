@@ -14,6 +14,7 @@
 #include <string>
 #include <random>
 #include "graph/graph.h"
+#include "graph/large_graph.h"
 #include "memory"
 
 class Execution {

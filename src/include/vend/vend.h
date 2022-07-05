@@ -18,9 +18,12 @@
 
 class Vend {
 public:
-    Vend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path, std::shared_ptr<DbEngine> &db) :
+    Vend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path,
+         std::shared_ptr<DbEngine> &db) :
             adjacency_list_(adj_list), encode_path_(encode_path), data_db_(db) {
     }
+
+    Vend(const std::string &encode_path, std::shared_ptr<DbEngine> &db) : encode_path_(encode_path), data_db_(db) {}
 
     Vend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, std::shared_ptr<DbEngine> &db) :
             adjacency_list_(adj_list), data_db_(db) {
@@ -70,12 +73,15 @@ public:
         return encodes_->NEpairTest(vertex1, vertex2);
     };
 
-    void Decode(uint32_t vertex,HybridEncode::DecodeInfo &decode_info){
-        return encodes_->Decode(vertex,decode_info);
+    void Decode(uint32_t vertex, HybridEncode::DecodeInfo &decode_info) {
+        return encodes_->Decode(vertex, decode_info);
     }
-    PairType Determine(uint32_t vertex1, const HybridEncode::DecodeInfo &decode_info1, uint32_t vertex2, const  HybridEncode::DecodeInfo &decode_info2){
-        return encodes_->NEpairTest(vertex1,decode_info1,vertex2,decode_info2);
+
+    PairType Determine(uint32_t vertex1, const HybridEncode::DecodeInfo &decode_info1, uint32_t vertex2,
+                       const HybridEncode::DecodeInfo &decode_info2) {
+        return encodes_->NEpairTest(vertex1, decode_info1, vertex2, decode_info2);
     }
+
 protected:
     std::shared_ptr<DbEngine> data_db_;
     std::shared_ptr<std::vector<std::vector<uint32_t >>> adjacency_list_;

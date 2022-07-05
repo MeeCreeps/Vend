@@ -20,14 +20,14 @@ file(GLOB_RECURSE ALL_SRCS "*.h" "*.cpp")
 
 
 
-FIND_PACKAGE(OpenMP REQUIRED)
+#FIND_PACKAGE(OpenMP REQUIRED)
 
 #openmp
-if (OPENMP_FOUND)
-    message("OPENMP FOUND")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif ()
+#if (OPENMP_FOUND)
+#    message("OPENMP FOUND")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#endif ()
 
 #link_directories(${PROJECT_SOURCE_DIR}/include/lib ${PLATFORM_LIBS})
 

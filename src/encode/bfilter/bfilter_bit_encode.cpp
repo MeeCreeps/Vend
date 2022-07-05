@@ -28,8 +28,6 @@ PairType BFilterBitEncode::NEpairTest(uint32_t vertex1, uint32_t vertex2) {
 }
 
 void BFilterBitEncode::InsertPair(uint32_t vertex1, uint32_t vertex2) {
-    if (vertex1 > vertex2)
-        std::swap(vertex1, vertex2);
     EdgeSet(vertex1, vertex2);
 }
 

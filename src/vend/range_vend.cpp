@@ -23,12 +23,27 @@ void RangeVend::BuildEncoding() {
     // vert array ordered the vertex by degree , bin  keeps tracks of first vertex index which degree equals i  in vert array
     // pos array  mapping vertex id to index of vert array
     std::vector<uint32_t> degrees(VERTEX_SIZE + 1), pos(VERTEX_SIZE + 1), vert(VERTEX_SIZE + 1);
-    for (uint32_t id = 1; id < adjacency_list_->size(); ++id) {
-        degree = adjacency_list_->at(id).size();
-        vert[id] = id;
-        max_degree = std::max(degree, max_degree);
-        degrees[id] = degree;
-        total_edge += degree;
+
+    // get degrees
+    if (adjacency_list_) {
+        for (uint32_t id = 1; id < adjacency_list_->size(); ++id) {
+            degree = adjacency_list_->at(id).size();
+            vert[id] = id;
+            max_degree = std::max(degree, max_degree);
+            degrees[id] = degree;
+            total_edge += degree;
+        }
+    } else {
+        data_db_->InitIter();
+        uint32_t vertex1;
+        std::vector<uint32_t> neighbors;
+        while (data_db_->Next(&vertex1, &neighbors)) {
+            degree = neighbors.size();
+            vert[id] = id;
+            max_degree = std::max(degree, max_degree);
+            degrees[id] = degree;
+            total_edge += degree;
+        }
     }
 
     std::sort(vert.begin() + 1, vert.end(), [&](int lhs, int rhs) {
@@ -41,7 +56,6 @@ void RangeVend::BuildEncoding() {
         degree = degrees[vert[i]];
         pos[vert[i]] = i;
         if (degree > j) {
-            //TODO fix bug : when no degree=i exist
             j = degree;
             bin[j] = i;
         }
@@ -49,9 +63,9 @@ void RangeVend::BuildEncoding() {
     j = 1;
     for (; j <= max_degree; ++j) {
         if (bin[j] == 0) {
-            bin[j]=bin[j-1]+1;
-            while(bin[++j]==0)
-                bin[j]=bin[j-1];
+            bin[j] = bin[j - 1] + 1;
+            while (bin[++j] == 0)
+                bin[j] = bin[j - 1];
         }
     }
 
@@ -62,8 +76,16 @@ void RangeVend::BuildEncoding() {
 
         std::vector<uint32_t> neighbors;
         uint32_t vertex = vert[idx], neighbor_degree, neighbor_pos, first_bin_pos, first_bin;
-        uint32_t vertex_degree=degrees[vertex];
-        for (auto neighbor:adjacency_list_->at(vertex)) {
+        uint32_t vertex_degree = degrees[vertex];
+
+        std::vector<uint32_t> *adj;
+        if (adjacency_list_) {
+            adj = &adjacency_list_->at(vertex);
+        } else {
+            data_db_->Get(vertex, adj);
+        }
+
+        for (auto neighbor: *adj) {
             if (filtered[neighbor])
                 continue;
             neighbors.push_back(neighbor);
@@ -71,9 +93,9 @@ void RangeVend::BuildEncoding() {
             neighbor_pos = pos[neighbor];
             first_bin_pos = bin[neighbor_degree];
             first_bin = vert[first_bin_pos];
-            if(vertex_degree>=neighbor_degree)
+            if (vertex_degree >= neighbor_degree)
                 continue;
-            if (first_bin_pos != neighbor_pos ) {
+            if (first_bin_pos != neighbor_pos) {
                 // swap two elements in the pos and vert
                 pos[neighbor] = first_bin_pos;
                 pos[first_bin] = neighbor_pos;
@@ -83,6 +105,9 @@ void RangeVend::BuildEncoding() {
             bin[neighbor_degree] += 1;
             degrees[neighbor] -= 1;
 
+        }
+        if (!adjacency_list_) {
+            free(adj);
         }
         filtered[vertex] = true;
         encodes_->EncodeVertex(vertex, neighbors);
@@ -97,11 +122,18 @@ void RangeVend::BuildEncoding() {
     for (; idx < VERTEX_SIZE + 1; ++idx) {
         uint32_t vertex = vert[idx];
         std::vector<uint32_t> neighbors;
-        for (auto &neighbor:adjacency_list_->at(vertex)) {
-            if (!filtered[neighbor])
-                neighbors.push_back(neighbor);
+        if (adjacency_list_) {
+            for (auto &neighbor: adjacency_list_->at(vertex)) {
+                if (!filtered[neighbor])
+                    neighbors.push_back(neighbor);
+            }
+        } else {
+            data_db_->Get(vertex, &neighbors);
+            for (auto neighbor: neighbors) {
+                if (!filtered[neighbor])
+                    neighbors.push_back(neighbor);
+            }
         }
-
         // encode
         encodes_->EncodeVertex(vertex, neighbors);
     }

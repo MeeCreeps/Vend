@@ -32,7 +32,7 @@ public:
      *          hash param
      *  @return :  return (key*hash_param1+key2*hash_param2)%|bitset|
      * */
-    inline uint64_t Hash(uint32_t key1, uint32_t key2, uint32_t hash_param1, uint32_t hash_param2) {
+    virtual uint64_t Hash(uint32_t key1, uint32_t key2, uint32_t hash_param1, uint32_t hash_param2) {
         return ((uint64_t)key1 * hash_param1 + (uint64_t)key2 * hash_param2) % hash_size_;
     };
 

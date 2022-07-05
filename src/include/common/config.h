@@ -36,8 +36,35 @@ static uint32_t LOG_K = static_cast<uint32_t>(ceil(log2((double) MAX_K_CORE_SIZE
 static uint32_t MAX_INTEGER_SIZE = static_cast<uint32_t >((PER_ENCODE_BIT_SIZE - 3 - LOG_K) / VERTEX_BIT_SIZE);
 
 static constexpr int THREAD_NUMS = 1;
-enum  PairType{
-    Neighbor=1,NonNeighbor=2,Uncertain=4
+enum PairType {
+    Neighbor = 1, NonNeighbor = 2, Uncertain = 4
 
 };
+
+/*
+ *  configurations for deletable bloom filter
+ * */
+
+static constexpr uint32_t BLOCK_SIZE = 512;
+static uint32_t REGION_SIZE = B_FILTER_ENCODE_BITS / 513;
+static uint32_t LEFT_SIZE = REGION_SIZE * 513;
+
+
+/*
+ *
+ *  configurations for counting bloom filter
+ *
+ * */
+static uint32_t ELEMENT_SIZE = static_cast<uint32_t>(ceil(log2((double) (DEGREE * VERTEX_SIZE / 2))));
+
+
+
+/*
+ *  configurations for large graphs
+ * */
+static bool IS_LARGE=false;
+// write 500W vertices each batch
+static constexpr int WriteBatchSize = 5000000;
+
+
 #endif //VEND_CONFIG_H

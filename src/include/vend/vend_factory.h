@@ -40,26 +40,55 @@ public:
     static void
     GetEncode(VendType vend_type, std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list,
               const std::string &encode_path,
-              std::shared_ptr<DbEngine> &db,std::shared_ptr<Vend> &vend) {
+              std::shared_ptr<DbEngine> &db, std::shared_ptr<Vend> &vend) {
 
         switch (vend_type) {
             case VendType::BloomFilterInt:
-                vend=std::make_shared<BFilterIntVend>(adj_list, encode_path, db);
+                vend = std::make_shared<BFilterIntVend>(adj_list, encode_path, db);
                 break;
             case VendType::BloomFilterBit:
-                vend=std::make_shared<BFilterBitVend>(adj_list, encode_path, db);
+                vend = std::make_shared<BFilterBitVend>(adj_list, encode_path, db);
                 break;
             case VendType::HashBit:
-                vend=std::make_shared<BitHashVend>(adj_list, encode_path, db);
+                vend = std::make_shared<BitHashVend>(adj_list, encode_path, db);
                 break;
             case VendType::Range:
-                vend=std::make_shared<RangeVend>(adj_list, encode_path, db);
+                vend = std::make_shared<RangeVend>(adj_list, encode_path, db);
                 break;
             case VendType::Hybrid:
-                vend=std::make_shared<HybridVend>(adj_list, encode_path, db);
+                vend = std::make_shared<HybridVend>(adj_list, encode_path, db);
                 break;
             case VendType::NoVend:
-                vend=nullptr;
+                vend = nullptr;
+        }
+
+    };
+
+    /*
+     *  for large graph
+     * */
+    static void
+    GetEncode(VendType vend_type, const std::string &encode_path,
+              std::shared_ptr<DbEngine> &db, std::shared_ptr<Vend> &vend) {
+
+        switch (vend_type) {
+            case VendType::BloomFilterInt:
+                vend = std::make_shared<BFilterIntVend>(encode_path, db);
+                break;
+            case VendType::BloomFilterBit:
+                vend = std::make_shared<BFilterBitVend>(encode_path, db);
+                break;
+            case VendType::HashBit:
+                vend = std::make_shared<BitHashVend>(encode_path, db);
+                break;
+            case VendType::Range:
+                vend = std::make_shared<RangeVend>(encode_path, db);
+                break;
+            case VendType::Hybrid:
+                vend = std::make_shared<HybridVend>(encode_path, db);
+                break;
+            case VendType::NoVend:
+                vend = nullptr;
         }
 
     };

@@ -59,6 +59,8 @@ public:
 
     virtual void DeletePair(uint32_t vertex1, uint32_t vertex2) {};
 
+    virtual bool IsDeletable(uint32_t vertex1, uint32_t vertex2) { return false;};
+
     virtual void Clear() {};
 
     /**

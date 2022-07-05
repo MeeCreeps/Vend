@@ -21,7 +21,7 @@ void Graph::Init() {
         graph_db_ = std::make_shared<RocksDb>(db_path_);
     if (vend_type_ != VendType::NoVend) {
         if (access(vend_path_.c_str(), F_OK) != 0 && !data_path_.empty()) {
-            // encode file doesn't exists ,load data
+            // encode file when is not exists ,load data
             LoadData();
             VendFactory::GetEncode(vend_type_, adjacency_list_, vend_path_, graph_db_,vend);
             BuildEncode();
