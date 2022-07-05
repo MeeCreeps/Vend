@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
     if(VERTEX_SIZE>100000000)
         IS_LARGE=true;
     //build encode
+
     if (is_build) {
         plan_nums = 5;
         std::cout << "start building \n";
@@ -133,10 +134,7 @@ int main(int argc, char **argv) {
             delete query_execution;
         }
         std::cout << "query time experiment finished \n";
-
     }
-
-
     if (is_random_score) {
         // random score
         std::cout << "start getting random scores\n";
