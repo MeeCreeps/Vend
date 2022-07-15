@@ -22,11 +22,11 @@ public:
     HybridVend(std::shared_ptr<std::vector<std::vector<uint32_t >>> &adj_list, const std::string &encode_path,
                std::shared_ptr<DbEngine> &db)
             : RangeVend(adj_list, encode_path, db) {
-
+        Init(db);
     }
 
     HybridVend(const std::string &encode_path, std::shared_ptr<DbEngine> &db) : RangeVend(encode_path, db) {
-        adjacency_list_= nullptr;
+        Init(db);
     }
 
     void Init(std::shared_ptr<DbEngine> &db) {

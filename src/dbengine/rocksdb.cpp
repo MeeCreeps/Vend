@@ -16,7 +16,7 @@ using namespace ROCKSDB_NAMESPACE;
 
 RocksDb::RocksDb(const std::string &db_path) : DbEngine(db_path) {
     rocksdb_ = nullptr;
-    iterator_=nullptr;    
+    iterator_ = nullptr;
     open_options_.IncreaseParallelism();
     // open_options_.OptimizeLevelStyleCompaction();
     // create the DB if it's not already present
@@ -75,12 +75,12 @@ bool RocksDb::Get(uint32_t key, std::set<uint32_t> *value) {
 
 void RocksDb::StringToValue(const std::string &data, std::vector<uint32_t> *value) {
     size_t len = data.length();
-    value->assign((uint32_t *)data.c_str(), (uint32_t *)data.c_str() + len / 4);
+    value->assign((uint32_t *) data.c_str(), (uint32_t *) data.c_str() + len / 4);
 }
 
 void RocksDb::StringToValue(const std::string &data, std::set<uint32_t> *value) {
     size_t len = data.length();
-    value->insert((uint32_t *)data.c_str(), (uint32_t *)data.c_str() + len / 4);
+    value->insert((uint32_t *) data.c_str(), (uint32_t *) data.c_str() + len / 4);
 }
 
 void RocksDb::StringToValue(const std::string &data, uint32_t *value) {
@@ -106,12 +106,12 @@ bool RocksDb::Put(uint32_t key, const std::vector<uint32_t> &value) {
 }
 
 char *RocksDb::ValueToString(const std::vector<uint32_t> &value, size_t *len) {
-    char *data = nullptr;
+
     *len = sizeof(uint32_t) * value.size();
-    data = (char *) (malloc(*len));
+    char *data = (char *) (malloc(*len));
     memset(data, 0, *len);
     size_t offset = 0;
-    for (auto &v:value) {
+    for (auto &v: value) {
         memcpy(data + offset, &v, sizeof(uint32_t));
         offset += sizeof(uint32_t);
     }
@@ -119,11 +119,12 @@ char *RocksDb::ValueToString(const std::vector<uint32_t> &value, size_t *len) {
 }
 
 char *RocksDb::ValueToString(uint32_t value, size_t *len) {
-    char *data = nullptr;
+
     *len = sizeof(uint32_t);
-    data = (char *) (malloc(*len));
+    char *data = (char *) (malloc(*len));
     memset(data, 0, *len);
     memcpy(data, &value, *len);
+    return data;
 }
 
 
@@ -131,12 +132,15 @@ void RocksDb::BatchWrite(const std::vector<uint32_t> &keys, const std::vector<st
 
     assert(keys.size() == values.size());
     WriteBatch write_batch;
+    size_t len;
     for (size_t i = 0; i < keys.size(); ++i) {
-        write_batch.Put(std::to_string(keys[i]), ValueToString(values[i], nullptr));
-
+        char *data = ValueToString(values[i], &len);
+        write_batch.Put(std::to_string(keys[i]), Slice(data, len));
+        free(data);
     }
-
     rocksdb_->Write(write_options_, &write_batch);
+    rocksdb_->Close();
+    assert(Open());
 }
 
 void RocksDb::InitIter() {

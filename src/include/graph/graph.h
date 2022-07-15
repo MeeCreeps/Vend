@@ -15,6 +15,16 @@
 #include "vend/vend.h"
 #include "dbengine/rocksdb.h"
 #include "vend/vend_factory.h"
+#include "dbengine/neo4j.h"
+#include "dbengine/dgraph.h"
+
+#include "util/json.cpp"
+using json = nlohmann::json;
+
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
@@ -27,14 +37,14 @@
 class Graph {
 public:
     Graph(std::string data_path, std::string db_path) : data_path_(data_path), db_path_(db_path),
-                                                        vertex_size(WriteBatchSize) {}
+                                                        vertex_size(VERTEX_SIZE) {}
 
     Graph(std::string db_path, std::string vend_path, VendType vend_type) : vend_path_(
-            vend_path), db_path_(db_path), vend_type_(vend_type), vertex_size(WriteBatchSize) {
+            vend_path), db_path_(db_path), vend_type_(vend_type), vertex_size(VERTEX_SIZE) {
     };
 
     Graph(std::string data_path, std::string db_path, std::string vend_path, VendType vend_type) : vend_path_(
-            vend_path), db_path_(db_path), data_path_(data_path), vend_type_(vend_type), vertex_size(WriteBatchSize) {
+            vend_path), db_path_(db_path), data_path_(data_path), vend_type_(vend_type), vertex_size(VERTEX_SIZE) {
     };
 
 

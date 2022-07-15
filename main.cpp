@@ -23,7 +23,7 @@
 #include "execution/triangle_execution.h"
 #include "CLI11.hpp"
 #include "easylog/easylogging++.h"
-
+#include "util/utils.h"
 INITIALIZE_EASYLOGGINGPP
 
 #include <iostream>
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
     app.add_option("-d", data_path, " origin data which is stored in txt format ");
     app.add_option("-b", db_path, "database path for  data graph")->required();
-    app.add_option("-p", vend_prefix, "prefix of path for encode")->required();
+    app.add_option("-v", vend_prefix, "prefix of path for encode")->required();
     app.add_option("-o", output_path, "output path ")->required();
     app.add_option("-p", pair_path_prefix, "query edge path")->required();
 
@@ -173,6 +173,8 @@ int main(int argc, char **argv) {
         std::cout << "triangle experiment finished \n";
     }
 
+
+    std::cout<<"memory usage:"<<memory::getMemory()<<" KB"<<std::endl;
 
 }
 

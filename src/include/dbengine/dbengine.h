@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include <iostream>
 #include <memory>
 
@@ -23,9 +24,8 @@ public:
 
     DbEngine(const std::string &db_path) : db_path_(db_path) {}
 
-    virtual ~DbEngine() {};
 
-    virtual bool Open() = 0;
+    virtual bool Open() {  };
 
     virtual bool Close() {};
 
@@ -35,21 +35,23 @@ public:
      *            false: key doesn't exist
      * */
     // edge format
-    virtual bool Get(uint32_t key, uint32_t *value) = 0;
+    virtual bool Get(uint32_t key, uint32_t *value) { return true; };
 
     // adjacency list format
     virtual bool Get(uint32_t key, std::vector<uint32_t> *value) = 0;
 
-    virtual bool Get(uint32_t key, std::set<uint32_t> *value) = 0;
+    virtual bool Get(uint32_t key, std::set<uint32_t> *value) { return true; };
 
     /**
      *  update/insert key——value
      *  @return    true: success  false: fail
      * */
 
-    virtual bool Put(uint32_t key, uint32_t value) = 0;
+    virtual bool Put(uint32_t key, uint32_t value) {};
 
-    virtual bool Put(uint32_t key, const std::vector<uint32_t> &value) = 0;
+    virtual bool Put(uint32_t key, const std::vector<uint32_t> &value) {};
+
+    virtual bool QueryEdge(uint32_t vertex1, uint32_t vertex2){};
 
     // bath write , more efficient than put
     virtual void BatchWrite(const std::vector<uint32_t> &keys, const std::vector<std::vector<uint32_t>> &values) {};

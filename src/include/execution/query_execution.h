@@ -35,28 +35,31 @@ public:
     }
 
     void Execute() override {
-        graph_->BackUpDb();
+        //graph_->BackUpDb();
         graph_->Init();
         Init();
+        int res=0;
         Timer *timer = new Timer();
         timer->StartTimer();
         if (vend_type_ != VendType::NoVend) {
             for (auto &pair: pair_list_) {
                 EdgeQuery(pair.first, pair.second);
+
             }
         } else {
             for (auto &pair: pair_list_) {
-                graph_->DbQuery(pair.first, pair.second);
+                if(graph_->DbQuery(pair.first, pair.second))
+                    ++res;
             }
         }
         timer->StopTimer();
         double percentage = (double) filtered_ / QUERY_LIST_SIZE * 100;
         std::ofstream output(output_path_, std::ios::out|std::ios::app);
         std::cout << VEND_STRING[vend_type_] << " query time cost :" << timer->CountTime() / 1000000 << " filtered: "
-                  << filtered_ << " percentage: " << percentage << "\n";
+                  << filtered_ << " percentage: " << percentage << " res:"<<res<<"\n";
         output << VEND_STRING[vend_type_] << "," << "query " << "," << list_size_ << "," << timer->CountTime() / 1000000
                << "," << filtered_ << "," << percentage << "\n";
-        graph_->DestoryDb();
+        //graph_->DestoryDb();
 
     };
 
@@ -109,18 +112,6 @@ public:
 //
 //        }
 
-
-//        std::uniform_int_distribution<unsigned> u(1, VERTEX_SIZE + 1);
-//        std::default_random_engine e;
-//        e.seed(time(NULL));
-//        uint32_t vertex1,vertex2;
-//        while (vertex_list->size() < vertex_size) {
-//            vertex1 = u(e);
-//            vertex2 = u(e);
-//            if(vertex1==vertex2)
-//                continue;
-//            vertex_list->push_back({vertex1,vertex2});
-//        }
     };
 
 private:
